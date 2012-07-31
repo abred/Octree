@@ -7,7 +7,9 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += . include/
 
-LIBS =  -L/home/abred/qtDebug/lib/ -L/usr/lib64/ -L/usr/lib/ -L/usr/local/lib -L../lib -lGL -lGLEW -lIL
+QMAKE_CXXFLAGS += -std=c++0x
+
+LIBS =  -L/home/abred/qtDebug/lib/ -L/usr/lib64/ -L/usr/lib/ -L/usr/local/lib -L../lib -lGL -lGLEW 
 
 # Input
 HEADERS += mainWindow.h \

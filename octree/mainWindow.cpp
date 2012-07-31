@@ -5,24 +5,18 @@
 
 MainWindow::MainWindow(QWidget *parent) : 
 			QMainWindow(parent),
-			ui(new Ui::Widget)
-
+			ui(new Ui::MainWindow)
 {
-	QGLFormat* form = new QGLFormat();
-	form->setVersion(4, 2);
+	QGLFormat* format = new QGLFormat();
+	format->setVersion(4, 2);
+	format->setProfile (QGLFormat::CoreProfile);
 
-	form->setProfile (QGLFormat::CoreProfile);
-
-	qgl = new OpenGLQtContext (form, (QWidget*)0);
-
-	delete form;	form = 0;
+	qgl = new OpenGLQtContext (format, (QWidget*)this);
+	delete format;	
+	format = 0;
 
 	ui->setupUi(this);
-	ui->GLSpace->addWidget(qgl);
-	
-
-//	connect(this, SIGNAL(clickedButton1()), this, SLOT(pushButton1Clicked()));
-	connect(ui->pushButton_1, SIGNAL(clicked()), this, SLOT(pushButton1Clicked()));
+	ui->gridLayout->addWidget(qgl, 0, 1, 4, 7);
 }
 
 MainWindow::~MainWindow()

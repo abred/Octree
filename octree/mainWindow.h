@@ -11,7 +11,7 @@
 
 namespace Ui 
 { 
-	class Widget; 
+	class MainWindow; 
 }
 
 class MainWindow : public QMainWindow
@@ -34,7 +34,7 @@ signals:
 protected:
 
 private:
-	Ui::Widget *ui;
+	Ui::MainWindow *ui;
 	OpenGLQtContext * qgl;
 	
 

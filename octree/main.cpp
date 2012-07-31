@@ -20,9 +20,9 @@ int main(int argc, char **argv)
 	}
 
 	MainWindow mw;
-	mw.resize(1800, 900);
-	mw.move(800,200);
-	mw.showFullScreen();
-	//widget.show();
+	mw.resize(800, 600);
+	mw.move(200,200);
+	//mw.showFullScreen();
+	mw.show();
 	return a.exec();
 }
