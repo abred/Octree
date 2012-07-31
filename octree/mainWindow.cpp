@@ -17,19 +17,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->setupUi(this);
 	ui->gridLayout->addWidget(qgl, 0, 1, 4, 7);
+	
 }
 
 MainWindow::~MainWindow()
 {
 	delete ui;
 	delete qgl;
-}
-
-
-
-void MainWindow::pushButton1Clicked()
-{
-
 }
 
 

@@ -1,7 +1,33 @@
 #include "openGLQtContext.h"
 
+//
+//readTextFile
+//
+char* readTextFile(std::string fileName)
+{
+	std::ifstream file (fileName.c_str(), std::ifstream::in);
 
+	std::string text;
+
+	while (file.good())
+	{
+	std::string s;
+
+	getline (file, s);
+	text += "\n" + s;
+	}
+
+	char* target = new char [text.size()+1];
+	strcpy (target, text.c_str());
+
+	return target;
+}
+//
+
+
+//
 // from g-truc ogl-samples
+//
 void GLAPIENTRY debugOutput (GLenum source,
                              GLenum type,
                              GLuint id,
@@ -107,7 +133,7 @@ void OpenGLQtContext::initializeGL()
 	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 
 	//glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	//glEnable( GL_BLEND );
+	glDisable( GL_BLEND );
 
 
 	//glEnable( GL_DEPTH_TEST );
@@ -129,9 +155,114 @@ void OpenGLQtContext::initializeGL()
 //
 void OpenGLQtContext::initScene()
 {
+	initShader();
+	initMatrices();
 
+	std::vector<glm::vec2> vertices;
+	{
+		vertices.push_back(glm::vec2(-1.0f, -1.0f));
+		vertices.push_back(glm::vec2( 1.0f, -1.0f));
+		vertices.push_back(glm::vec2(-1.0f,  1.0f));
+		vertices.push_back(glm::vec2( 1.0f,  1.0f));
+	}
+	std::cout << "#vertices: " << vertices.size() << std::endl;
+
+	std::vector<GLuint> indices;
+	{
+		indices.push_back(GLuint(0));
+		indices.push_back(GLuint(1));
+		indices.push_back(GLuint(2));
+		indices.push_back(GLuint(3));
+	}
+	std::cout << "#indices: " << indices.size() << std::endl;
+
+	glGenVertexArrays(1, &mVao);
+	glGenBuffers(1, &mVBuf);
+	glGenBuffers(1, &mIBuf);
+
+	glBindVertexArray(mVao);
+	{	
+		glBindBuffer(GL_ARRAY_BUFFER, mVBuf);
+		glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(GLfloat) * vertices.size(), &(vertices[0]), GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBuf);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &(indices[0]), GL_STATIC_DRAW);
+
+		
+	}
+	glBindVertexArray(0);
 }
 //
+
+
+//
+// initMatrices
+//
+//
+void OpenGLQtContext::initMatrices()
+{
+	mModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0));
+	mModelViewMatrix = mViewMatrix * mModelMatrix;
+	mNormalMatrix = glm::transpose(glm::inverse(mModelViewMatrix));
+	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 100.f);
+	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
+
+
+	glUseProgram(mShaderID);
+	GLuint mvpMatrixLocation = glGetUniformLocation(mShaderID, "MVP");
+	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
+	GLuint mvMatrixLocation = glGetUniformLocation(mShaderID, "MV");
+	glUniformMatrix4fv(mvMatrixLocation, 1, GL_FALSE, &mModelViewMatrix[0][0]);
+	GLuint normalMatrixLocation = glGetUniformLocation(mShaderID, "normalMatrix");
+	glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE, &mNormalMatrix[0][0]);
+}
+//
+
+//
+// initShader
+//
+//
+void OpenGLQtContext::initShader()
+{
+	std::string const vsFile("shader/quad.vert");
+	//std::string const gsFile(".geom");
+	std::string const fsFile("shader/quad.frag");
+
+	mShaderID = glCreateProgram();
+		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		const char* vsSource = readTextFile(vsFile);
+
+		//GLuint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+		//const char* gsSource = readTextFile(gsFile);
+
+		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		const char* fsSource = readTextFile(fsFile);
+
+
+		glShaderSource(vertexShader, 1, &vsSource, nullptr);
+		glCompileShader(vertexShader);
+
+		//glShaderSource(geometryShader, 1, &gsSource, nullptr);
+		//glCompileShader(geometryShader);
+
+		glShaderSource(fragmentShader, 1, &fsSource, nullptr);
+		glCompileShader(fragmentShader);
+
+		glAttachShader(mShaderID, vertexShader);
+		//glAttachShader(mShaderID, geometryShader);
+		glAttachShader(mShaderID, fragmentShader);
+
+		glLinkProgram(mShaderID);
+
+		glDeleteShader(vertexShader);
+		//glDeleteShader(geometryShader);
+		glDeleteShader(fragmentShader);
+
+		glUseProgram(mShaderID);
+}
 
 
 //
@@ -144,7 +275,13 @@ void OpenGLQtContext::paintGL()
 {	
 	// buffer leeren
    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 
+	glUseProgram(mShaderID);
+	GLuint mvpMatrixLocation = glGetUniformLocation(mShaderID, "MVP");
+	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
+	glBindVertexArray(mVao);
+		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, nullptr);
 }
 //
 
@@ -156,9 +293,11 @@ void OpenGLQtContext::paintGL()
 //
 void OpenGLQtContext::resizeGL(int width, int height)
 {
+std::cout << "pblub";
 	glViewport(0, 0, width, height);
 	resize(width, height);
-	//projectionMatrix_ = glm::perspective(60.0f, float(width) / float(height), 0.1f, 100.f);
+	mProjectionMatrix = glm::perspective(60.0f, float(width) / float(height), 0.1f, 100.f);
+
 }
 //
 

@@ -30,7 +30,8 @@
 #include <vector>
 #include <map>
 #include <ctime>
-#include<sstream>
+#include <sstream>
+#include <fstream>
 #include <cmath>
 //
 
@@ -55,7 +56,6 @@ class OpenGLQtContext : public QGLWidget
 			void 			paintGL();
 			void 			resizeGL(int width, int height);
 
-
 			void 			mousePressEvent(QMouseEvent *);
 			//void 			mouseReleaseEvent(QMouseEvent *);
 			void 			mouseMoveEvent(QMouseEvent *);
@@ -64,7 +64,22 @@ class OpenGLQtContext : public QGLWidget
 
 	private:
 			void 			initScene();
-;
+			void initMatrices();
+			void initShader();
+
+			glm::mat4	mModelMatrix;
+			glm::mat4	mViewMatrix;
+			glm::mat4	mModelViewMatrix;
+			glm::mat4	mNormalMatrix;
+			glm::mat4	mProjectionMatrix;
+			glm::mat4	mMVPMatrix;
+
+			GLuint		mShaderID;
+
+			GLuint		mVao;
+			GLuint		mVBuf;
+			GLuint		mIBuf;
+
 
 	public slots:
 

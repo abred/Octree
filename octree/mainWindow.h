@@ -4,7 +4,7 @@
 
 #include <QMainWindow>
 #include <QApplication>
-
+#include <QResizeEvent>
 
 #include "openGLQtContext.h"
 
@@ -22,25 +22,10 @@ public:
 	explicit MainWindow (QWidget *parent = 0);
 	~MainWindow ();
 
-
-
-public slots:
-//		void touchSlot(QTouchEvent* touchEvent);
-
-signals:
-		void clickedButton1();
-
-
-protected:
-
 private:
 	Ui::MainWindow *ui;
 	OpenGLQtContext * qgl;
 	
-
-private slots:
-    void pushButton1Clicked();
-
 
 
 };
