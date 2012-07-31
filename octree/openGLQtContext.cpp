@@ -86,6 +86,9 @@ OpenGLQtContext::OpenGLQtContext(QGLFormat* context, QWidget *parent) :
 	makeCurrent();
 
 	setFocusPolicy ( Qt::ClickFocus);
+	
+    VolumeLoader* l = new VolumeLoader("res/Sphere_w64_h64_d64_c1_b8.raw");
+	l->loadData();
 }
 //
 

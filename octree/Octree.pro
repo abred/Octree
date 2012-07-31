@@ -13,10 +13,12 @@ LIBS =  -L/home/abred/qtDebug/lib/ -L/usr/lib64/ -L/usr/lib/ -L/usr/local/lib -L
 
 # Input
 HEADERS += mainWindow.h \
-           openGLQtContext.h
+           openGLQtContext.h\
+           volumeLoader.h
            
 FORMS += ui/widget.ui
 
 SOURCES += main.cpp \
            mainWindow.cpp \
-           openGLQtContext.cpp
+           openGLQtContext.cpp\
+           volumeLoader.cpp

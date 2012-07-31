@@ -37,6 +37,7 @@
 
 
 //#include <IL/il.h>
+#include "volumeLoader.h"
 
 
 class OpenGLQtContext : public QGLWidget
