@@ -59,12 +59,13 @@ class BrickTree
 		void buildTree(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam);
 		void computeCut(glm::vec3 cam);
 		unsigned int getChild(unsigned int index, unsigned int child);
+		unsigned int getParent(unsigned int index);
 		void split();
 		void collapse();
 				
 		std::vector<Brick*> mTree;
 		std::list<unsigned int> mCut;
-		std::list<unsigned int> mCCollapsibleNodes;
+		std::list<unsigned int> mCollapsibleNodes;
 		std::list<unsigned int> mSplittableNodes;
 
 		

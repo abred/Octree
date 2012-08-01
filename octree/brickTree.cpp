@@ -101,18 +101,18 @@ void BrickTree::computeCut(glm::vec3 cam)
 	while (pqueue.size() + 7 <= CUTSIZE)
 	{
 		unsigned int top = pqueue.top();
-		mSplittable.remove(top);
+		mSplittableNodes.remove(top);
 		mCollapsibleNodes.push_back(top);
 		
-		mCollapsible.remove(getParent(top));
+		mCollapsibleNodes.remove(getParent(top));
 		unsigned int child = 0;
 		pqueue.pop();
 		
 		for (unsigned int i = 0; i < 8; ++i)
 		{
-			child = getChild(top, i)
+			child = getChild(top, i);
 			pqueue.push(child);
-			mSplittableNodes.push_back(child)
+			mSplittableNodes.push_back(child);
 		}
 		
 	}
