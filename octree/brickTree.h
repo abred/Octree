@@ -2,10 +2,29 @@
 #define __BRICKTREE_H__
 
 #include "brick.h"
+#include "glm/glm.hpp"
+
 
 #include <vector>
 #include <queue>
+#include <list>
 
+
+class CamDistanceComperator
+{
+	public:
+		CamDistanceComperator(glm::vec3 &cam, std::vector<Brick*>* t) : mCam(cam), mTree(t) 
+		{}
+		
+		bool operator() (unsigned int &lhs, unsigned int &rhs) const
+  		{
+  			return(glm::length(mCam - (*mTree)[lhs]->getCenter()) < glm::length(mCam - (*mTree)[rhs]->getCenter()));
+		}
+		
+	private:
+		glm::vec3 &mCam;
+		std::vector<Brick*>* mTree;
+};
 
 struct BrickData
 {
@@ -26,15 +45,29 @@ struct BrickData
 class BrickTree
 {
 	public:
-		BrickTree (unsigned char * data, unsigned int width, unsigned int height , unsigned int depth );
+		BrickTree (unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam );
 		~BrickTree ();
-		void buildTree(unsigned char *, unsigned int width, unsigned int height , unsigned int depth);
 		
+		
+		void updateCut(glm::vec3);
 		
 
 	private:
-		std::vector<Brick*> mTree;
+		
 		void computeBrick(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ );
+		
+		void buildTree(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam);
+		void computeCut(glm::vec3 cam);
+		unsigned int getChild(unsigned int index, unsigned int child);
+		void split();
+		void collapse();
+				
+		std::vector<Brick*> mTree;
+		std::list<unsigned int> mCut;
+		std::list<unsigned int> mCCollapsibleNodes;
+		std::list<unsigned int> mSplittableNodes;
+
+		
 
 };
 

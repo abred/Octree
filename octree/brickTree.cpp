@@ -1,14 +1,12 @@
 #include "brickTree.h"
 
-BrickTree::BrickTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth)
+BrickTree::BrickTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam )
 {
-	buildTree( data , width, height , depth);
-
-
+	buildTree( data , width, height , depth , cam);
 }
 
 
-void BrickTree::buildTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth)
+void BrickTree::buildTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam)
 {
 	std::queue<BrickData> q;
 	q.push(BrickData(width,height,depth, 0, 0, 0));
@@ -88,11 +86,59 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 		}
 	}
 	
-	mTree.push_back(new Brick(brickData));
+	mTree.push_back(new Brick(brickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2)));
 }
 
 
+void BrickTree::computeCut(glm::vec3 cam)
+{
+	const unsigned int CUTSIZE = 20;
+	
+	std::priority_queue<unsigned int, std::vector<unsigned int>, CamDistanceComperator> pqueue((CamDistanceComperator(cam, &mTree)));
+	
+	pqueue.push(0); 
 
+	while (pqueue.size() + 7 <= CUTSIZE)
+	{
+		unsigned int top = pqueue.top();
+		mSplittable.remove(top);
+		mCollapsibleNodes.push_back(top);
+		
+		mCollapsible.remove(getParent(top));
+		unsigned int child = 0;
+		pqueue.pop();
+		
+		for (unsigned int i = 0; i < 8; ++i)
+		{
+			child = getChild(top, i)
+			pqueue.push(child);
+			mSplittableNodes.push_back(child)
+		}
+		
+	}
+	
+	while(pqueue.size() > 0)
+	{
+		mCut.push_back(pqueue.top());
+		pqueue.pop();
+	}
+
+}
+
+unsigned int BrickTree::getParent(unsigned int index)
+{
+	return (index - 1) / 8;
+}
+
+unsigned int BrickTree::getChild(unsigned int index, unsigned int child)
+{
+	unsigned int level = floor(log10(index+1)/log10(8));
+	unsigned int posIndexInLevel = index - pow(8.0,level) + 1;
+	unsigned int posChild = 8 * posIndexInLevel + child;
+	return pow(8.0, level+1) + posChild -1;
+	// return index * 8 + (child + 1); ???
+
+}
 
 
 
