@@ -34,6 +34,9 @@ VolumeLoader::VolumeLoader(std::string fileName):
 	
 	
 	std::cout<< "width: " << width << "\nheight: " << height << "\ndepth: " << depth << "\ncomponents: " << components << "\nbitsPerVoxel: " << bitsPerVoxel<<std::endl;
+	
+	mDim = Dimension(width, height , depth);
+
 
 }
 
@@ -71,5 +74,13 @@ void VolumeLoader::loadData()
 
 }
 
+unsigned char* VolumeLoader::getData()
+{
 
+	return mData;
+}
 
+Dimension VolumeLoader::getDimension()
+{
+	return mDim;
+}

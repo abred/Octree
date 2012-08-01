@@ -7,6 +7,22 @@
 #include <fstream>
 
 
+struct Dimension
+{
+	unsigned int width;
+	unsigned int height;
+	unsigned int depth;
+	
+	Dimension(unsigned int w , unsigned int h , unsigned int d)
+	{
+		width = w;
+		height = h;
+		depth = d;
+	}
+	Dimension()
+	{}
+
+};
 
 class VolumeLoader
 {
@@ -15,7 +31,8 @@ class VolumeLoader
 		void loadData();
 		~VolumeLoader();
 		
-		unsigned char* data();
+		unsigned char* getData();
+		Dimension getDimension();
 			
 		
 		
@@ -31,6 +48,8 @@ class VolumeLoader
 		unsigned int bitsPerVoxel;
 		unsigned int dimension;
 		unsigned int depth;
+		
+		Dimension mDim;
 		
 
 				

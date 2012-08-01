@@ -87,8 +87,12 @@ OpenGLQtContext::OpenGLQtContext(QGLFormat* context, QWidget *parent) :
 
 	setFocusPolicy ( Qt::ClickFocus);
 	
-    VolumeLoader* l = new VolumeLoader("res/Sphere_w64_h64_d64_c1_b8.raw");
+	VolumeLoader* l = new VolumeLoader("res/foot_w256_h256_d256_c1_b8.raw");
 	l->loadData();
+	
+	BrickTree* t = new BrickTree(l->getData() , l->getDimension().width , l->getDimension().height , l->getDimension().depth);
+	
+    
 }
 //
 

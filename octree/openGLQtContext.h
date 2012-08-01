@@ -38,6 +38,10 @@
 
 //#include <IL/il.h>
 #include "volumeLoader.h"
+#include "brick.h"
+#include "brickTree.h"
+
+
 
 
 class OpenGLQtContext : public QGLWidget
