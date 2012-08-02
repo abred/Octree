@@ -90,7 +90,8 @@ OpenGLQtContext::OpenGLQtContext(QGLFormat* context, QWidget *parent) :
 	VolumeLoader* l = new VolumeLoader("res/foot_w256_h256_d256_c1_b8.raw");
 	l->loadData();
 	
-	BrickTree* t = new BrickTree(l->getData() , l->getDimension().width , l->getDimension().height , l->getDimension().depth, glm::vec3(0.0f, 0.0f, -10.0f));
+	mTree = new BrickTree(l->getData() , l->getDimension().width , l->getDimension().height , l->getDimension().depth, glm::vec3(0.0f, 0.0f, -10.0f));
+
 	
     
 }
@@ -289,6 +290,10 @@ void OpenGLQtContext::paintGL()
 	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
 	glBindVertexArray(mVao);
 		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, nullptr);
+		
+	mTree->updateCut(glm::vec3(578.0f, 120.0f, 564.0f));
+	
+	update();
 }
 //
 

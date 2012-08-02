@@ -68,7 +68,7 @@ class OpenGLQtContext : public QGLWidget
 
 
 	private:
-			void 			initScene();
+			void initScene();
 			void initMatrices();
 			void initShader();
 
@@ -84,6 +84,8 @@ class OpenGLQtContext : public QGLWidget
 			GLuint		mVao;
 			GLuint		mVBuf;
 			GLuint		mIBuf;
+			
+			BrickTree*	mTree;
 
 
 	public slots:

@@ -7,7 +7,7 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += . include/
 
-QMAKE_CXXFLAGS += -std=c++0x -g
+QMAKE_CXXFLAGS += -std=c++0x -g -O0
 
 LIBS =  -L/home/abred/qtDebug/lib/ -L/usr/lib64/ -L/usr/lib/ -L/usr/local/lib -L../lib -lGL -lGLEW 
 
