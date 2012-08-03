@@ -192,24 +192,24 @@ int BrickTree::getChild(int index, int child)
 float BrickTree::getError(int index, glm::vec3 cam)
 {
 
-//	if(index == 0)
-//		return 1;
-//	else
-//	{
-//		unsigned int level = getLevel(index);
-//		float diag = ROOTDIAG / float(level);
-//	  	float errorSumChild = 0.0f;
-//  			
-//		for(int i = 0; i < 8; ++i)
-//	  	{
-//	  		errorSumChild += diag * 0.5f / (diag * 0.5f + glm::length(cam - mTree[getChild(index, i)]->getCenter()));
-//	  		//std::cout << index << " " << errorSumChild << " " << getChild(index, i) << " " << mTree[getChild(index, i)]->getCenter().x << " " << glm::length(cam - mTree[getChild(index, i)]->getCenter()) << " " << diag << " " << level << std::endl;
-//	  	}
-//	  	float error = diag / (diag + glm::length(cam - mTree[index]->getCenter()));
+	if(index == 0)
+		return 1;
+	else
+	{
+		unsigned int level = getLevel(index);
+		float diag = ROOTDIAG / float(level);
+	  	float errorSumChild = 0.0f;
+  			
+		for(int i = 0; i < 8; ++i)
+	  	{
+	  		errorSumChild += diag * 0.5f / (diag * 0.5f + glm::length(cam - mTree[getChild(index, i)]->getCenter()));
+	  		//std::cout << index << " " << errorSumChild << " " << getChild(index, i) << " " << mTree[getChild(index, i)]->getCenter().x << " " << glm::length(cam - mTree[getChild(index, i)]->getCenter()) << " " << diag << " " << level << std::endl;
+	  	}
+	  	float error = diag / (diag + glm::length(cam - mTree[index]->getCenter()));
 
-//		return (error - (errorSumChild/8.0f));
-//	}
-	return(glm::length(cam - mTree[index]->getCenter()));
+		return (error - (errorSumChild/8.0f));
+	}
+	//return(glm::length(cam - mTree[index]->getCenter()));
 }
 
 
@@ -236,12 +236,14 @@ void BrickTree::updateCut(glm::vec3 cam)
 //	std::cout<<"start update cut\n";
 
 //	std::cout<<cam.x << " " << cam.y << " " << cam.z<< "\n";
-	mCollapsibleNodes.sort(CamDistanceComperator2(cam , &mTree));
-	
+//	mCollapsibleNodes.sort(CamDistanceComperator2(cam , &mTree));
+
+	mCollapsibleNodes.sort(SplitComperator(cam , &mTree));
 
 //	std::cout<<"sorted collapsibles\n";	
 	
-	mSplittableNodes.sort(CamDistanceComperator3(cam , &mTree));
+//	mSplittableNodes.sort(CamDistanceComperator3(cam , &mTree));
+	mSplittableNodes.sort(CollapseComperator(cam , &mTree));
 //	#
 
 	//debugPrint(cam);

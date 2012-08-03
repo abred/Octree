@@ -1,6 +1,6 @@
 #ifndef __BRICK_H__
 #define __BRICK_H__
-#define BRICKSIZE 4
+#define BRICKSIZE 8
 #include <iostream>
 #include "glm/glm.hpp"
 
