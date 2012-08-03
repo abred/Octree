@@ -16,7 +16,8 @@ HEADERS += mainWindow.h \
            openGLQtContext.h\
            volumeLoader.h\
            brick.h\
-           brickTree.h
+           brickTree.h\
+	   comperator.h
            
 FORMS += ui/widget.ui
 
@@ -25,4 +26,5 @@ SOURCES += main.cpp \
            openGLQtContext.cpp\
            volumeLoader.cpp\
            brick.cpp\
-           brickTree.cpp
+           brickTree.cpp\
+	   comperator.cpp

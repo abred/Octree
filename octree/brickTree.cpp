@@ -195,29 +195,11 @@ void BrickTree::updateCut(glm::vec3 cam)
 
 	mSplittableNodes.sort(SplitComperator(cam , &mTree));
 	mCollapsibleNodes.sort(CollapseComperator(cam , &mTree));
-
+	debugPrint(cam);
 
 	for (unsigned int r = 0; r < MAXREPLACEMENTS;)
 	{
-		std::cout << "split ";
-		for (std::list<int>::iterator i = mSplittableNodes.begin(); i != mSplittableNodes.end(); ++i)
-		{
-			std::cout << *i << " ";
-		}
-		std::cout << std::endl << "collapse ";
-	
-		for(int i : mCollapsibleNodes)
-		{
-			std::cout << i << " ";
-		}std:: cout << std::endl << "cut ";
-	
-		for(int i : mCut)
-		{
-			std::cout << i << " ";
-		}std:: cout << std::endl;
 		
-		std::cout << mSplittableNodes.front() << " error split " << getError(mSplittableNodes.front(), cam) << std::endl <<
-		mCollapsibleNodes.front() << " error coll " << getError(mCollapsibleNodes.front(), cam) << std::endl;
 		if(getError(mSplittableNodes.front(), cam) < getError(mCollapsibleNodes.front(), cam))
 		{
 			break;
@@ -227,60 +209,12 @@ void BrickTree::updateCut(glm::vec3 cam)
 		{
 			r += 8;
 			split(mSplittableNodes.front());
-			mCollapsibleNodes.push_back(mSplittableNodes.front());
-			int parent = getParent(mSplittableNodes.front());
-			if (parent != -1)
-			{
-				mCollapsibleNodes.remove(parent);
-			}
-			
-			for (int i = 0; i < 8; ++i)
-			{
-				int child = getChild(mSplittableNodes.front(), i);
-				if (child == -1)
-				{
-					break;
-				}
-				mSplittableNodes.push_back(child);
-			}
-			
-			mSplittableNodes.pop_front();
-			
 		}
 		else if(!mCollapsibleNodes.empty())
 		{
 			r += 1;
 			collapse(mCollapsibleNodes.front());
-			mSplittableNodes.push_back(mCollapsibleNodes.front());
 			
-			int parent = getParent(mCollapsibleNodes.front());
-			if (parent != -1)
-			{
-				unsigned int counter = 0;
-				for (int i = 0; i < 8; i += 1)
-				{
-					for (int j : mSplittableNodes)
-					{
-						if (j == getChild(parent, i))
-						{
-							++counter;
-						}
-					}
-				}
-				if (counter == 8)
-				{
-					mCollapsibleNodes.push_back(parent);
-				}
-			}
-			
-			for (int i = 0; i < 8; ++i)
-			{
-				mSplittableNodes.remove(getChild(mCollapsibleNodes.front(), i));
-			}
-			
-			
-			
-			mCollapsibleNodes.pop_front();
 		}
 		else
 			break;
@@ -294,11 +228,39 @@ void BrickTree::updateCut(glm::vec3 cam)
 
 void BrickTree::split(int index)
 {
+	//insert children into cut
 	for (int i = 0; i < 8; ++i)
 	{
 		mCut.push_back(getChild(index,i));
 	}
+
+	//remove node from cut
 	mCut.remove(index);
+	
+	//add node to collapsible
+	mCollapsibleNodes.push_back(mSplittableNodes.front());
+
+
+	//remove parent from coallapsible
+	int parent = getParent(mSplittableNodes.front());
+	if (parent != -1)
+	{
+		mCollapsibleNodes.remove(parent);
+	}
+	
+	//insert children into splittable
+	for (int i = 0; i < 8; ++i)
+	{
+		int child = getChild(mSplittableNodes.front(), i);
+		if (child == -1)
+		{
+			break;
+		}
+		mSplittableNodes.push_back(child);
+	}
+	
+	//remove node from splittable
+	mSplittableNodes.pop_front();
 
 
 }
@@ -306,12 +268,75 @@ void BrickTree::split(int index)
 void BrickTree::collapse(int index)
 {
 	
+	//remove children from cut
 	for (int i = 0; i < 8; ++i)
 	{
 		mCut.remove(getChild(index,i));
 	}
+
+	//insert node into cut
 	mCut.push_back(index);
 
+	//add node to splittable
+	mSplittableNodes.push_back(mCollapsibleNodes.front());
+	
+	
+	//add parent to collapsible
+	int parent = getParent(mCollapsibleNodes.front());
+	if (parent != -1)
+	{
+		unsigned int counter = 0;
+		for (int i = 0; i < 8; i += 1)
+		{
+			for (int j : mSplittableNodes)
+			{
+				if (j == getChild(parent, i))
+				{
+					++counter;
+				}
+			}
+		}
+		if (counter == 8)
+		{
+			mCollapsibleNodes.push_back(parent);
+		}
+	}
+	
+	//remove children from splittable	
+	for (int i = 0; i < 8; ++i)
+	{
+		mSplittableNodes.remove(getChild(mCollapsibleNodes.front(), i));
+	}
+		
+	//remove node from collapsible
+	mCollapsibleNodes.pop_front();
+
+}
+
+
+void BrickTree::debugPrint(glm::vec3 const &cam)
+{
+
+	std::cout << "split ";
+	for (std::list<int>::iterator i = mSplittableNodes.begin(); i != mSplittableNodes.end(); ++i)
+	{
+		std::cout << *i << " ";
+	}
+	std::cout << std::endl << "collapse ";
+	
+	for(int i : mCollapsibleNodes)
+	{
+		std::cout << i << " ";
+	}std:: cout << std::endl << "cut ";
+
+	for(int i : mCut)
+	{
+		std::cout << i << " ";
+	}
+	std:: cout << std::endl;
+	
+	std::cout << mSplittableNodes.front() << " error split " << getError(mSplittableNodes.front(), cam) << std::endl <<
+	mCollapsibleNodes.front() << " error coll " << getError(mCollapsibleNodes.front(), cam) << std::endl;
 }
 
 BrickData::BrickData(unsigned int w, unsigned int h, unsigned int d, unsigned int x, unsigned int y, unsigned int z) : width(w), height(h), depth(d), offsetX(x), offsetY(y), offsetZ(z)

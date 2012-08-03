@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'widget.ui'
 **
-** Created: Thu Aug 2 20:13:30 2012
-**      by: Qt User Interface Compiler version 4.8.1
+** Created: Fri Aug 3 11:27:46 2012
+**      by: Qt User Interface Compiler version 4.8.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
