@@ -7,8 +7,30 @@ CamDistanceComperator::CamDistanceComperator(glm::vec3 &cam, std::vector<Brick*>
 
 bool CamDistanceComperator::operator() (int &lhs, int &rhs) const
 {
-	return(glm::length(mCam - (*mTree)[lhs]->getCenter()) < glm::length(mCam - (*mTree)[rhs]->getCenter()));
+	if(!hasChild(lhs))
+		return false;
+	else
+		return(glm::length(mCam - (*mTree)[lhs]->getCenter()) < glm::length(mCam - (*mTree)[rhs]->getCenter()));
 }
+
+
+
+bool CamDistanceComperator::hasChild(int index) const
+{
+	/*unsigned int level = floor(log10(index+1)/log10(8));
+	unsigned int posIndexInLevel = index - pow(8.0,level) + 1;
+	unsigned int posChild = 8 * posIndexInLevel + child;
+	return pow(8.0, level+1) + posChild -1;*/
+//std::cout << mTree.size() << " " << index << std::endl;
+	if (index * 8 + 1 >= mTree->size())
+	{
+		return false;
+	}
+	else
+		return true;
+
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------------------
 

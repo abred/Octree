@@ -6,7 +6,7 @@ in vec4 vPosition;
 
 void main()
 {
-	FragColor = vec4(vPosition.x+1.1, vPosition.y+1.1, 0.0, 1.0);
+	FragColor = vec4(0.0, 1.0, 0.0, 1.0);
 }
 
 

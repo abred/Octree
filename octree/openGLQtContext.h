@@ -24,6 +24,8 @@
 #include <QObject>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QTimer>
+
 //
 //STL-Header
 #include <iostream>
@@ -84,12 +86,15 @@ class OpenGLQtContext : public QGLWidget
 			GLuint		mVao;
 			GLuint		mVBuf;
 			GLuint		mIBuf;
-			
+
+			QTimer *        mTimer;
 			BrickTree*	mTree;
+
+			int 		mFrameCounter;
 
 
 	public slots:
-
+			void 		fps();
 
 
 	private:

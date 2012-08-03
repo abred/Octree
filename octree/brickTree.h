@@ -15,7 +15,7 @@
 
 
 
-#define CUTSIZE 20
+#define CUTSIZE 32
 #define MAXREPLACEMENTS 16
 
 
@@ -45,6 +45,7 @@ class BrickTree
 		
 		
 		void updateCut(glm::vec3);
+		std::vector<Brick*> const& getTree() const;
 		
 
 	private:
@@ -57,9 +58,12 @@ class BrickTree
 		int getParent(int index);
 		void split(int);
 		void collapse(int);
+
 		float getError(int, glm::vec3 cam);
+		float getSplitError(int, glm::vec3 cam);
+		float getCollapseError(int, glm::vec3 cam);
 		int getLevel(int index);
-//		bool isSplittable(int);
+		bool isSplittable(int);
 
 		void debugPrint(glm::vec3 const&);
 				

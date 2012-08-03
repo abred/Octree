@@ -21,6 +21,9 @@ class CamDistanceComperator
 		bool operator() (int &lhs, int &rhs) const;
   		
 	private:
+
+		bool hasChild(int index) const;
+
 		glm::vec3 &mCam;
 		std::vector<Brick*>* mTree;
 };

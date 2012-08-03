@@ -63,6 +63,12 @@ void BrickTree::buildTree(unsigned char * data, unsigned int width, unsigned int
 	computeCut(cam);
 }
 
+std::vector<Brick*> const& BrickTree::getTree() const
+{
+	return mTree;	
+}
+
+
 void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned int height , unsigned int depth, unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ )
 {
 
@@ -97,32 +103,39 @@ void BrickTree::computeCut(glm::vec3 cam)
 	std::priority_queue<int, std::vector<int>, CamDistanceComperator> pqueue((CamDistanceComperator(cam, &mTree)));
 	
 	pqueue.push(0); 
-	while (pqueue.size() + 7 <= CUTSIZE)
+	bool isLeaf = false;
+
+	while (pqueue.size() + 7 - mCut.size() <= CUTSIZE )//&& !isLeaf)
 	{
 		int top = pqueue.top();
-
-		mSplittableNodes.remove(top);
-		mCollapsibleNodes.push_back(top);
-	
-		mCollapsibleNodes.remove(getParent(top));
-		int child = 0;
-		pqueue.pop();
+std::cout << top << std::endl;
 		
-		for (unsigned int i = 0; i < 8; ++i)
-		{
-			child = getChild(top, i);
-			if (child == -1)
-			{
-//				std::cout<<"index: "<< top << " has no children\n";
-				break;
-			}
 
-			pqueue.push(child);
-			if (getChild(child, i) != -1)
+		if(isSplittable(top))
+		{
+			pqueue.pop();
+			mCollapsibleNodes.push_back(top);
+			mSplittableNodes.remove(top);
+
+			
+			mCollapsibleNodes.remove(getParent(top));
+			int child = 0;
+			for (unsigned int i = 0; i < 8; ++i)
 			{
-				mSplittableNodes.push_back(child);
-				
+				child = getChild(top, i);
+	
+				pqueue.push(child);
+
+				if (getChild(child, i) != -1)
+				{
+					mSplittableNodes.push_back(child);
+				}
 			}
+		}
+		else
+		{
+			mCut.push_back(top);
+			pqueue.pop();		
 		}
 
 		std::cout<<"pqueue size "<<pqueue.size()<<std::endl;
@@ -140,11 +153,11 @@ void BrickTree::computeCut(glm::vec3 cam)
 
 }
 
-//bool BrickTree::isSplittable(int index)
-//{
-//	return(getChild(index,1) > 0)
+bool BrickTree::isSplittable(int index)
+{
+	return(getChild(index,1) > 0);
 
-//}
+}
 
 int BrickTree::getParent(int index)
 {
@@ -162,7 +175,8 @@ int BrickTree::getChild(int index, int child)
 	unsigned int posIndexInLevel = index - pow(8.0,level) + 1;
 	unsigned int posChild = 8 * posIndexInLevel + child;
 	return pow(8.0, level+1) + posChild -1;*/
-	if (index * 8 > mTree.size())
+	//std::cout << mTree.size() << " " << index << std::endl;
+	if (index * 8 + 1 >= mTree.size())
 	{
 		return -1;
 	}
@@ -178,21 +192,23 @@ float BrickTree::getError(int index, glm::vec3 cam)
 		return 1;
 	else
 	{
-	unsigned int level = getLevel(index);
-	float diag = ROOTDIAG / float(level);
-
-  	float errorSumChild = 0.0f;
+		unsigned int level = getLevel(index);
+		float diag = ROOTDIAG / float(level);
+	  	float errorSumChild = 0.0f;
   			
-	for(int i = 0; i < 8; ++i)
-  	{
-  		errorSumChild += diag * 0.5f / (diag * 0.5f + glm::length(cam - mTree[getChild(index, i)]->getCenter()));
-  		//std::cout << index << " " << errorSumChild << " " << getChild(index, i) << " " << mTree[getChild(index, i)]->getCenter().x << " " << glm::length(cam - mTree[getChild(index, i)]->getCenter()) << " " << diag << " " << level << std::endl;
-  	}
-  	float error = diag / (diag + glm::length(cam - mTree[index]->getCenter()));
+		for(int i = 0; i < 8; ++i)
+	  	{
+	  		errorSumChild += diag * 0.5f / (diag * 0.5f + glm::length(cam - mTree[getChild(index, i)]->getCenter()));
+	  		//std::cout << index << " " << errorSumChild << " " << getChild(index, i) << " " << mTree[getChild(index, i)]->getCenter().x << " " << glm::length(cam - mTree[getChild(index, i)]->getCenter()) << " " << diag << " " << level << std::endl;
+	  	}
+	  	float error = diag / (diag + glm::length(cam - mTree[index]->getCenter()));
 
-	return error - errorSumChild/8.0f;
+		return (error - (errorSumChild/8.0f));
 	}
 }
+
+
+
 
 
 int BrickTree::getLevel(int index)
@@ -213,9 +229,26 @@ void BrickTree::updateCut(glm::vec3 cam)
 {
 
 //	std::cout<<"start update cut\n";
+
+//	std::cout<<cam.x << " " << cam.y << " " << cam.z<< "\n";
 	mCollapsibleNodes.sort(CollapseComperator(cam , &mTree));
+	
+
 //	std::cout<<"sorted collapsibles\n";	
+	
 	mSplittableNodes.sort(SplitComperator(cam , &mTree));
+//	
+//	std::cout<< "split ";
+
+//	for(int i : mSplittableNodes)
+//		std::cout<<i <<" ";
+//	std::cout << std::endl;
+
+//	std::cout<< "collapse ";
+
+//	for(int i : mCollapsibleNodes)
+//		std::cout<<i <<" ";
+//	std::cout << std::endl;
 //	std::cout<<"sorted splittables\n";
 
 	//std::cout<<mCut.size()<<std::endl;
@@ -225,27 +258,20 @@ void BrickTree::updateCut(glm::vec3 cam)
 	{
 
 //		std::cout<<"start while loop\n";
-		if(mSplittableNodes.empty() || mCollapsibleNodes.empty())
+		if(mSplittableNodes.empty() && mCollapsibleNodes.empty())
 		{
-//			std::cout<< "EMPTY!"<<std::endl;
+			std::cout<< "EMPTY!"<<std::endl;
 			break;
 		}
 
-		if(getError(mSplittableNodes.front(), cam) > getError(mCollapsibleNodes.front(), cam))
-		{
-//			std::cout<< "ERROR WRONG!"<< cam.x << " "<<cam.y <<" "<< cam.z << std::endl;
-//			std::cout<<getError(mSplittableNodes.front(), cam)<< " > "<< getError(mCollapsibleNodes.front(), cam)<<std::endl;
-			break;
-		}
-		
-		if(!mSplittableNodes.empty() && mCut.size() <= CUTSIZE-7)
+		while(!mSplittableNodes.empty() && mCut.size() <= CUTSIZE-7 && r < MAXREPLACEMENTS)
 		{
 			std::cout<< "SPLIT!"<<std::endl;
 			split(mSplittableNodes.front());			
 			debugPrint(cam);
 			r += 8;
 		}
-		else if(!mCollapsibleNodes.empty())
+		if(!mCollapsibleNodes.empty() && !mSplittableNodes.empty() && (getError(mSplittableNodes.front(), cam) > getError(mCollapsibleNodes.front(), cam)) && r < MAXREPLACEMENTS)
 		{
 			std::cout<< "COLLAPSE"<<std::endl;
 			collapse(mCollapsibleNodes.front());			
@@ -393,5 +419,27 @@ BrickData::BrickData(BrickData const& bd) : width(bd.width), height(bd.height), 
 
 
 
+
+
+
+
+//		if(getError(mSplittableNodes.front(), cam) > getError(mCollapsibleNodes.front(), cam))
+//		{
+//			std::cout<< "\nERROR WRONG!"<< cam.x << " "<<cam.y <<" "<< cam.z <<"\n";
+//			std::cout<<mSplittableNodes.front()<< " "<<getError(mSplittableNodes.front(), cam)<< " > "<<mCollapsibleNodes.front() << " "<< getError(mCollapsibleNodes.front(), cam)<<"\n";
+//			
+//			std::cout<< "split ";
+//			for(int i : mSplittableNodes)
+//				std::cout<<i <<" ";
+//			std::cout << std::endl;
+
+//			std::cout<< "collapse ";
+//			for(int i : mCollapsibleNodes)
+//				std::cout<<i <<" ";
+//			std::cout << std::endl;
+
+//			break;
+//		}
+//		
 
 
