@@ -144,8 +144,8 @@ void OpenGLQtContext::initializeGL()
 	glClearDepth(1.0f);
 	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 
-	glDisable(GL_PROGRAM_POINT_SIZE);
-	glPointSize(5.0f);
+//	glDisable(GL_PROGRAM_POINT_SIZE);
+//	glPointSize(5.0f);
 	//glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glDisable( GL_BLEND );
 
@@ -178,11 +178,11 @@ void OpenGLQtContext::initScene()
 //		vertices.push_back(glm::vec2( 1.0f, -1.0f));
 //		vertices.push_back(glm::vec2(-1.0f,  1.0f));
 //		vertices.push_back(glm::vec2( 1.0f,  1.0f));
-		for (unsigned int i = 0; i < 73	; i += 1)
+		for (int i : mTree->getCut())
 		{
 			vertices.push_back(mTree->getTree()[i]->getCenter());
 			glm::vec3 c = mTree->getTree()[i]->getCenter();
-			std::cout << c.x << " " << c.y << " " << c.z << std::endl;
+//			std::cout << mTree->getCut().size() << " " << c.x << " " << c.y << " " << c.z << std::endl;
 		}
 	}
 	std::cout << "#vertices: " << vertices.size() << std::endl;
@@ -302,21 +302,49 @@ void OpenGLQtContext::paintGL()
 	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
 	glBindVertexArray(mVao);
 //		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, nullptr);
-		glDrawArrays(GL_POINTS, 0, 73);
+		glDrawArrays(GL_POINTS, 0, mTree->getCut().size());
 	
-	glm::vec3 cam(0.0f, 0.0f, 0.0f);
+//	glm::vec3 cam(0.0f, 0.0f, 0.0f);
 
-	srand(time(NULL));
-	float ranX = (float)(rand() %10000) - 5000;
-	srand(time(NULL));
-	float ranY = (float)(rand() %10000- 5000) + ranX;
-	srand(time(NULL));
-	float ranZ = (float)(rand() %10000- 5000) - ranY;
-	cam = glm::vec3(cam.x +ranX , cam.y + ranY , cam.z + ranZ );
+//	srand(time(NULL));
+//	float ranX = (float)(rand() %10000) - 5000;
+//	srand(time(NULL));
+//	float ranY = (float)(rand() %10000- 5000) + ranX;
+//	srand(time(NULL));
+//	float ranZ = (float)(rand() %10000- 5000) - ranY;
+//	cam = glm::vec3(cam.x +ranX , cam.y + ranY , cam.z + ranZ );
 	
+	glm::vec4 cam = mViewMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	++mFrameCounter;
-	mTree->updateCut(cam);
+	mTree->updateCut(glm::vec3(-cam.x, -cam.y, - cam.z));
+//	std::cout << "cam " << -cam.x << " " << -cam.y << " " << -cam.z << std::endl;
 	
+
+	std::vector<glm::vec3> vertices;
+	{
+		for (int i : mTree->getCut())
+		{
+			vertices.push_back(mTree->getTree()[i]->getCenter());
+			glm::vec3 c = mTree->getTree()[i]->getCenter();
+			//std::cout << c.x << " " << c.y << " " << c.z << std::endl;
+		}
+	}
+
+
+
+	glBindVertexArray(mVao);
+	{	
+		glBindBuffer(GL_ARRAY_BUFFER, mVBuf);
+		glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat) * vertices.size(), &(vertices[0]), GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBuf);
+//		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &(indices[0]), GL_STATIC_DRAW);
+
+		
+	}
+	glBindVertexArray(0);
 	update();
 }
 //
@@ -329,7 +357,7 @@ void OpenGLQtContext::paintGL()
 //
 void OpenGLQtContext::resizeGL(int width, int height)
 {
-std::cout << "pblub";
+//	std::cout << "pblub";
 	glViewport(0, 0, width, height);
 	resize(width, height);
 	mProjectionMatrix = glm::perspective(60.0f, float(width) / float(height), 0.1f, 1000.f);
@@ -432,8 +460,9 @@ void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 
 void OpenGLQtContext::fps()
 {
-	std::cout<< mFrameCounter << "fps"<< std::endl;
-	mFrameCounter =0;
+//	std::cout<< mFrameCounter << "fps"<< std::endl;
+	emit setTitle(QString::number(mFrameCounter));
+	mFrameCounter = 0;
 }
 
 //

@@ -99,6 +99,9 @@ class OpenGLQtContext : public QGLWidget
 
 	private:
 
+	signals:
+			void		setTitle(QString const&);
+
 
 };
 

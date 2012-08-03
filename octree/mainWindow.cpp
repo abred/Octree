@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 	ui->gridLayout->addWidget(qgl, 0, 1, 4, 7);
 	
+	connect(qgl, SIGNAL(setTitle(QString const&)), this, SLOT(setWindowTitle(QString const&)));
 }
 
 MainWindow::~MainWindow()

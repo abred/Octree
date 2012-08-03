@@ -15,8 +15,8 @@
 
 
 
-#define CUTSIZE 32
-#define MAXREPLACEMENTS 16
+#define CUTSIZE 16384
+#define MAXREPLACEMENTS 512
 
 
 
@@ -46,6 +46,7 @@ class BrickTree
 		
 		void updateCut(glm::vec3);
 		std::vector<Brick*> const& getTree() const;
+		std::list<int> const& getCut() const;
 		
 
 	private:

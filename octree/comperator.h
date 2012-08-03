@@ -29,6 +29,38 @@ class CamDistanceComperator
 };
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//---------------------------------------CamDistanceComperator2---------------------------------------------------------
+class CamDistanceComperator2
+{
+	public:
+
+		CamDistanceComperator2(glm::vec3 &, std::vector<Brick*>*);
+		bool operator() (int &lhs, int &rhs) const;
+  		
+	private:
+
+		glm::vec3 &mCam;
+		std::vector<Brick*>* mTree;
+};
+//----------------------------------------------------------------------------------------------------------------------------------
+
+
+//---------------------------------------CamDistanceComperator3---------------------------------------------------------
+class CamDistanceComperator3
+{
+	public:
+
+		CamDistanceComperator3(glm::vec3 &, std::vector<Brick*>*);
+		bool operator() (int &lhs, int &rhs) const;
+  		
+	private:
+
+		glm::vec3 &mCam;
+		std::vector<Brick*>* mTree;
+};
+//----------------------------------------------------------------------------------------------------------------------------------
+
+
 
 //--------------------------------------------SplitComperator----------------------------------------------------------------
 class SplitComperator

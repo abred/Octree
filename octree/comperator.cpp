@@ -32,7 +32,35 @@ bool CamDistanceComperator::hasChild(int index) const
 }
 
 
+//------------------------------------------CamDistanceComperator2------------------------------------------------------
+CamDistanceComperator2::CamDistanceComperator2(glm::vec3 &cam, std::vector<Brick*>* t) : mCam(cam), mTree(t) 
+		{}
+
+bool CamDistanceComperator2::operator() (int &lhs, int &rhs) const
+{
+	return(glm::length(mCam - (*mTree)[lhs]->getCenter()) > glm::length(mCam - (*mTree)[rhs]->getCenter()));
+}
+
+
+
+
 //----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+//------------------------------------------CamDistanceComperator3------------------------------------------------------
+CamDistanceComperator3::CamDistanceComperator3(glm::vec3 &cam, std::vector<Brick*>* t) : mCam(cam), mTree(t) 
+		{}
+
+bool CamDistanceComperator3::operator() (int &lhs, int &rhs) const
+{
+	return(glm::length(mCam - (*mTree)[lhs]->getCenter()) < glm::length(mCam - (*mTree)[rhs]->getCenter()));
+}
+
+
+
+//----------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
