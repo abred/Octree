@@ -10,6 +10,10 @@
 #include <vector>
 #include <queue>
 #include <list>
+#include <cstdlib>
+#include <ctime>
+
+
 
 #define CUTSIZE 20
 #define MAXREPLACEMENTS 16
@@ -55,6 +59,7 @@ class BrickTree
 		void collapse(int);
 		float getError(int, glm::vec3 cam);
 		int getLevel(int index);
+//		bool isSplittable(int);
 
 		void debugPrint(glm::vec3 const&);
 				

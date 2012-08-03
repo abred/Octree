@@ -290,9 +290,18 @@ void OpenGLQtContext::paintGL()
 	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
 	glBindVertexArray(mVao);
 		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, nullptr);
-		
-	mTree->updateCut(glm::vec3(578.0f, 120.0f, 564.0f));
 	
+	glm::vec3 cam(0.0f, 0.0f, 0.0f);
+
+	srand(time(NULL));
+	float ranX = (float)(rand() %100) - 50;
+	srand(time(NULL));
+	float ranY = (float)(rand() %100- 50) + ranX;
+	srand(time(NULL));
+	float ranZ = (float)(rand() %100- 50) - ranY;
+	cam = glm::vec3(cam.x +ranX , cam.y + ranY , cam.z + ranZ );
+
+	mTree->updateCut(cam);
 	update();
 }
 //

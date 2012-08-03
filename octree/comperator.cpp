@@ -21,6 +21,7 @@ SplitComperator::SplitComperator(glm::vec3 &cam, std::vector<Brick*>* t) : mCam(
 
 bool SplitComperator::operator() (int &lhs, int &rhs) const
  {
+//	std::cout<<"SplitComperator for: " <<lhs << " and " << rhs <<std::endl;
  	int parent = lhs;
  	int counter = 0;
 
@@ -43,15 +44,23 @@ bool SplitComperator::operator() (int &lhs, int &rhs) const
 	unsigned int levelRhs = counter;
 
 	float diagLhs = ROOTDIAG / float(levelLhs);
+//	std::cout<<"diagLhs " << diagLhs<<std::endl;
 	float diagRhs = ROOTDIAG / float(levelRhs);
+//	std::cout<<"diagRhs " << diagRhs<<std::endl;
   			
 	float errorSumLhsChild = 0.0f;
 	float errorSumRhsChild = 0.0f;
   			
 	for(unsigned int i = 0; i < 8; ++i)
 	{
+		
+
 		errorSumLhsChild += diagLhs * 0.5f / (diagLhs * 0.5f + glm::length(mCam - (*mTree)[8 * lhs + i + 1]->getCenter()));
+//		std::cout<<"childLhs: " << i <<" errorSumLhsChild: "<< errorSumLhsChild <<std::endl;
+		
 		errorSumRhsChild += diagRhs * 0.5f / (diagRhs * 0.5f + glm::length(mCam - (*mTree)[8 * rhs + i + 1]->getCenter()));
+//		std::cout<<"childRhs: " << i <<" errorSumRhsChild: "<< errorSumRhsChild <<std::endl;
+		
 	}
 
 	float errorLhs = diagLhs / (diagLhs + glm::length(mCam - (*mTree)[lhs]->getCenter()));
