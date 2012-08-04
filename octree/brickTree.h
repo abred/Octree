@@ -15,7 +15,7 @@
 
 
 
-#define CUTSIZE 8192
+#define CUTSIZE 4096
 #define MAXREPLACEMENTS 256
 
 

@@ -179,13 +179,14 @@ void BrickTree::computeCut(glm::vec3 cam)
 	pqueue.push(0); 
 	bool isLeaf = false;
 
-	while (pqueue.size() + 7 + mCut.size() <= CUTSIZE )
+	while (!pqueue.empty() && pqueue.size() + 7 + mCut.size() <= CUTSIZE )
 	{
 		int top = pqueue.top();
-
+			std::cout << mCut.size() << " " << pqueue.size() << std::endl;
 		if(isSplittable(top))
 		{
 			pqueue.pop();
+
 			mCollapsibleNodes.push_back(top);
 			mSplittableNodes.remove(top);
 
@@ -414,9 +415,10 @@ void BrickTree::debugPrint(glm::vec3 const &cam)
 		std::cout << i << " ";
 	}
 	std:: cout << std::endl ;
-	
-	std::cout << mSplittableNodes.front() << " error split " << getError(mSplittableNodes.front(), cam) << std::endl <<
-	mCollapsibleNodes.front() << " error coll " << getError(mCollapsibleNodes.front(), cam) << std::endl;
+
+		
+//	std::cout << mSplittableNodes.front() << " error split " << getError(mSplittableNodes.front(), cam) << std::endl <<
+//	mCollapsibleNodes.front() << " error coll " << getError(mCollapsibleNodes.front(), cam) << std::endl;
 }
 
 
