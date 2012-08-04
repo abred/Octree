@@ -44,34 +44,34 @@ class BrickTree
 		~BrickTree ();
 		
 		
-		void updateCut(glm::vec3);
-		std::vector<Brick*> const& getTree() const;
-		std::list<int> const& getCut() const;
+		void 				updateCut(glm::vec3);
+
+		std::vector<Brick*> const& 	getTree() const;
+		std::list<int> const& 		getCut() const;
 		
 
 	private:
 		
-		void computeBrick(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ );
+		void 	computeBrick(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ );
 		
-		void buildTree(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam);
-		void computeCut(glm::vec3 cam);
-		int getChild(int index, int child);
-		int getParent(int index);
-		void split(int);
-		void collapse(int);
+		void 	buildTree(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam);
+		void 	computeCut(glm::vec3 cam);
+		void 	split(int);
+		void 	collapse(int);
 
-		float getError(int, glm::vec3 cam);
-		float getSplitError(int, glm::vec3 cam);
-		float getCollapseError(int, glm::vec3 cam);
-		int getLevel(int index);
-		bool isSplittable(int);
+		int 	getChild(int index, int child);
+		int 	getParent(int index);
+		int 	getLevel(int index);
+		float 	getError(int, glm::vec3 cam);
 
-		void debugPrint(glm::vec3 const&);
+		bool 	isSplittable(int);
+
+		void 	debugPrint(glm::vec3 const&);
 				
-		std::vector<Brick*> mTree;
-		std::list<int> mCut;
-		std::list<int> mCollapsibleNodes;
-		std::list<int> mSplittableNodes;
+		std::vector<Brick*> 	mTree;
+		std::list<int> 		mCut;
+		std::list<int> 		mCollapsibleNodes;
+		std::list<int> 		mSplittableNodes;
 
 		
 
