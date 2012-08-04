@@ -1,11 +1,13 @@
 #ifndef __BRICKTREE_H__
 #define __BRICKTREE_H__
 
+
+
 #include "brick.h"
 #include "glm/glm.hpp"
 #include "comperator.h"
-
-
+#include "volumeLoader.h"
+#include "textureAtlas.h"
 
 #include <vector>
 #include <queue>
@@ -15,8 +17,7 @@
 
 
 
-#define CUTSIZE 4096
-#define MAXREPLACEMENTS 256
+
 
 
 
@@ -31,7 +32,9 @@ struct BrickData
 	unsigned int offsetY;
 	unsigned int offsetZ;
 	
-	BrickData(unsigned int w, unsigned int h, unsigned int d, unsigned int x, unsigned int y, unsigned int z);
+	unsigned char level;
+	
+	BrickData(unsigned int w, unsigned int h, unsigned int d, unsigned int x, unsigned int y, unsigned int z , unsigned char level);
 	BrickData();
 	BrickData(BrickData const& bd);
 };
@@ -52,7 +55,7 @@ class BrickTree
 
 	private:
 		
-		void 	computeBrick(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ );
+		void 	computeBrick(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ, unsigned char level );
 		
 		void 	buildTree(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam);
 		void 	computeCut(glm::vec3 cam);
@@ -72,6 +75,8 @@ class BrickTree
 		std::list<int> 		mCut;
 		std::list<int> 		mCollapsibleNodes;
 		std::list<int> 		mSplittableNodes;
+		Dimension		mDimension;
+		TextureAtlas*		mTexAtl;
 
 		
 

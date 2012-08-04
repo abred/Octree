@@ -17,7 +17,8 @@ HEADERS += mainWindow.h \
            volumeLoader.h\
            brick.h\
            brickTree.h\
-	   comperator.h
+	   comperator.h \
+	   textureAtlas.h
            
 FORMS += ui/widget.ui
 
@@ -27,4 +28,5 @@ SOURCES += main.cpp \
            volumeLoader.cpp\
            brick.cpp\
            brickTree.cpp\
-	   comperator.cpp
+	   comperator.cpp \
+	   textureAtlas.cpp

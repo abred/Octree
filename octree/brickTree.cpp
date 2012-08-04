@@ -5,9 +5,11 @@
 
 
 
-BrickTree::BrickTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam )
+BrickTree::BrickTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam ):
+	mDimension(width,height , depth)
 {
 	buildTree( data , width, height , depth , cam);
+
 }
 
 BrickTree::~BrickTree()
@@ -86,7 +88,7 @@ std::list<int> const& BrickTree::getCut() const
 
 
 
-void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned int height , unsigned int depth, unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ )
+void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned int height , unsigned int depth, unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ , unsigned char level )
 {
 
 	int stepWidth = (int) (width / BRICKSIZE) ;
@@ -107,7 +109,7 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 		}
 	}
 	
-	mTree.push_back(new Brick(brickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2)));
+	mTree.push_back(new Brick(brickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2) , level));
 }
 
 
@@ -115,58 +117,66 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 void BrickTree::buildTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam)
 {
 	std::queue<BrickData> q;
-	q.push(BrickData(width,height,depth, 0, 0, 0));
-	
+	unsigned char levelCounter=0;
+	q.push(BrickData(width,height,depth, 0, 0, 0 , levelCounter));
+
 	while (!q.empty())
 	{
 		BrickData tmp = q.front();
 		q.pop();
-		computeBrick(data, tmp.width, tmp.height, tmp.depth, tmp.offsetX, tmp.offsetY, tmp.offsetZ);
+		computeBrick(data, tmp.width, tmp.height, tmp.depth, tmp.offsetX, tmp.offsetY, tmp.offsetZ , tmp.level);
 		
 		if(int(tmp.width/BRICKSIZE) > 1)
 		{
+			if (tmp.offsetX == 0 && tmp.offsetY == 0 && tmp.offsetZ == 0)
+			{
+				++levelCounter;
+			}
 			q.push(BrickData(tmp.width/2    , tmp.height/2   , tmp.depth/2    ,
 			       		 tmp.offsetX + 0, 
 			       		 tmp.offsetY + 0, 
-			       		 tmp.offsetZ + 0));
+			       		 tmp.offsetZ + 0, levelCounter ));
 			       		           
 			q.push(BrickData(tmp.width/2, tmp.height/2, tmp.depth/2,
 					 tmp.offsetX + tmp.width/2,  
 					 tmp.offsetY + 0,
-					 tmp.offsetZ + 0));
+					 tmp.offsetZ + 0, levelCounter));
 					 
 			q.push(BrickData(tmp.width/2, tmp.height/2, tmp.depth/2,
 			      		 tmp.offsetX + 0,
 			      		 tmp.offsetY + tmp.height/2,
-			      		 tmp.offsetZ + 0));
+			      		 tmp.offsetZ + 0, levelCounter));
 			      		           
 			q.push(BrickData(tmp.width/2, tmp.height/2, tmp.depth/2,
 			 		 tmp.offsetX + tmp.width /2, 
 			 		 tmp.offsetY + tmp.height/2,
-			 		 tmp.offsetZ + 0));
+			 		 tmp.offsetZ + 0, levelCounter));
 			 		 
 			q.push(BrickData(tmp.width/2, tmp.height/2, tmp.depth/2,
 			      		 tmp.offsetX + 0,
 			      		 tmp.offsetY + 0, 
-			      		 tmp.offsetZ + tmp.depth/2));
+			      		 tmp.offsetZ + tmp.depth/2, levelCounter));
 			      		          
 			q.push(BrickData(tmp.width/2, tmp.height/2, tmp.depth/2,
 			 		 tmp.offsetX + tmp.width/2, 
 			 		 tmp.offsetY + 0,
-			 		 tmp.offsetZ + tmp.depth/2));
+			 		 tmp.offsetZ + tmp.depth/2, levelCounter));
 			 		
 			q.push(BrickData(tmp.width/2, tmp.height/2, tmp.depth/2,
 			       		 tmp.offsetX + 0, 
 			       		 tmp.offsetY + tmp.height/2, 
-			       		 tmp.offsetZ + tmp.depth /2));
+			       		 tmp.offsetZ + tmp.depth /2, levelCounter));
 			       		
 			q.push(BrickData(tmp.width/2, tmp.height/2, tmp.depth/2,
 			 		 tmp.offsetX + tmp.width /2, 
 			 		 tmp.offsetY + tmp.height/2, 
-			 		 tmp.offsetZ + tmp.depth /2));
+			 		 tmp.offsetZ + tmp.depth /2, levelCounter));
 		}
 	}
 	computeCut(cam);
+	
+	mTexAtl = new TextureAtlas(width, height, depth, &mTree);
+	mTexAtl->initTextures(mCut, mDimension);
 }
 
 
@@ -182,7 +192,7 @@ void BrickTree::computeCut(glm::vec3 cam)
 	while (!pqueue.empty() && pqueue.size() + 7 + mCut.size() <= CUTSIZE )
 	{
 		int top = pqueue.top();
-			std::cout << mCut.size() << " " << pqueue.size() << std::endl;
+			//std::cout << mCut.size() << " " << pqueue.size() << std::endl;
 		if(isSplittable(top))
 		{
 			pqueue.pop();
@@ -218,18 +228,24 @@ void BrickTree::computeCut(glm::vec3 cam)
 		mCut.push_back(pqueue.top());
 		pqueue.pop();
 	}
+	
+
 }
 
 void BrickTree::split(int index)
 {
+	std::list<unsigned char>addBricks ;
+	std::list<unsigned char>removeBricks ;
 	//insert children into cut
 	for (int i = 0; i < 8; ++i)
 	{
 		mCut.push_back(getChild(index,i));
+		addBricks.push_back(getChild(index , i));
 	}
 
 	//remove node from cut
 	mCut.remove(index);
+	removeBricks.push_back(index);
 	
 	//add node to collapsible
 	mCollapsibleNodes.push_back(mSplittableNodes.front());
@@ -258,19 +274,24 @@ void BrickTree::split(int index)
 	
 	//remove node from splittable
 	mSplittableNodes.pop_front();
+	mTexAtl->updateTextures(addBricks , removeBricks);
 }
 
 void BrickTree::collapse(int index)
 {
 	
+	std::list<unsigned char>addBricks ;
+	std::list<unsigned char>removeBricks ;
 	//remove children from cut
 	for (int i = 0; i < 8; ++i)
 	{
 		mCut.remove(getChild(index,i));
+		removeBricks.push_back(getChild(index, i));
 	}
 
 	//insert node into cut
 	mCut.push_back(index);
+	addBricks.push_back(index);
 
 	//add node to splittable
 	mSplittableNodes.push_back(mCollapsibleNodes.front());
@@ -308,6 +329,7 @@ void BrickTree::collapse(int index)
 		
 	//remove node from collapsible
 	mCollapsibleNodes.pop_front();
+	mTexAtl->updateTextures(addBricks , removeBricks);
 }
 
 
@@ -429,9 +451,9 @@ void BrickTree::debugPrint(glm::vec3 const &cam)
 
 
 
-BrickData::BrickData(unsigned int w, unsigned int h, unsigned int d, unsigned int x, unsigned int y, unsigned int z) : width(w), height(h), depth(d), offsetX(x), offsetY(y), offsetZ(z)
+BrickData::BrickData(unsigned int w, unsigned int h, unsigned int d, unsigned int x, unsigned int y, unsigned int z , unsigned char level) : width(w), height(h), depth(d), offsetX(x), offsetY(y), offsetZ(z), level(level)
 	{}
 BrickData::BrickData()
 	{}
-BrickData::BrickData(BrickData const& bd) : width(bd.width), height(bd.height), depth(bd.depth), offsetX(bd.offsetX), offsetY(bd.offsetY), offsetZ(bd.offsetZ)
+BrickData::BrickData(BrickData const& bd) : width(bd.width), height(bd.height), depth(bd.depth), offsetX(bd.offsetX), offsetY(bd.offsetY), offsetZ(bd.offsetZ) ,level(bd.level)
 	{}
