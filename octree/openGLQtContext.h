@@ -80,6 +80,7 @@ class OpenGLQtContext : public QGLWidget
 			glm::mat4	mNormalMatrix;
 			glm::mat4	mProjectionMatrix;
 			glm::mat4	mMVPMatrix;
+			glm::mat4	mMVPInverseMatrix;
 
 			GLuint		mShaderID;
 
@@ -92,6 +93,8 @@ class OpenGLQtContext : public QGLWidget
 			BrickTree*	mTree;
 
 			int 		mFrameCounter;
+			
+			QPoint		mLastPos;
 
 
 	public slots:

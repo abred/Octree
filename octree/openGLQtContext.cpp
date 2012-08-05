@@ -137,7 +137,7 @@ void OpenGLQtContext::initializeGL()
 	std::cout << "QGL: OpenGL Version: " << glGetString(GL_VERSION) << std::endl << std::endl;
 
 
-	glClearDepth(1.0f);
+//	glClearDepth(1.0f);
 	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 
 //	glDisable(GL_PROGRAM_POINT_SIZE);
@@ -146,11 +146,12 @@ void OpenGLQtContext::initializeGL()
 	glDisable( GL_BLEND );
 
 
-	//glEnable( GL_DEPTH_TEST );
+	glEnable( GL_DEPTH_TEST );
 	//glDepthFunc(GL_LESS);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CW);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//	glCullFace(GL_BACK);
+	glDisable(GL_CULL_FACE);
+//	glFrontFace(GL_CCW);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	initScene();
 }
@@ -175,35 +176,73 @@ void OpenGLQtContext::initScene()
 	initMatrices();
 
 	std::vector<glm::vec3> vertices;
-	std::vector<unsigned int>levels;
 	{
-//		vertices.push_back(glm::vec2(-1.0f, -1.0f));
-//		vertices.push_back(glm::vec2( 1.0f, -1.0f));
-//		vertices.push_back(glm::vec2(-1.0f,  1.0f));
-//		vertices.push_back(glm::vec2( 1.0f,  1.0f));
-		for (int i : mTree->getCut())
-		{
-			vertices.push_back(mTree->getTree()[i]->getCenter());
-			levels.push_back(mTree->getTree()[i]->getLevel());
-			glm::vec3 c = mTree->getTree()[i]->getCenter();
-//			std::cout << mTree->getCut().size() << " " << c.x << " " << c.y << " " << c.z << std::endl;
-		}
+		vertices.push_back(glm::vec3( 0.0f,  0.0f,  1.0f));//0
+		vertices.push_back(glm::vec3( 1.0f,  0.0f,  1.0f));//1
+		vertices.push_back(glm::vec3( 1.0f,  1.0f,  1.0f));//2
+		vertices.push_back(glm::vec3( 0.0f,  1.0f,  1.0f));//3
+		
+		vertices.push_back(glm::vec3( 0.0f,  0.0f,  0.0f));//4
+		vertices.push_back(glm::vec3( 1.0f,  0.0f,  0.0f));//5
+		vertices.push_back(glm::vec3( 1.0f,  1.0f,  0.0f));//6
+		vertices.push_back(glm::vec3( 0.0f,  1.0f,  0.0f));//7
 	}
 	std::cout << "#vertices: " << vertices.size() << std::endl;
-	std::cout << "#levelsize: " << levels.size() << std::endl;
 
-//	std::vector<GLuint> indices;
-//	{
-//		indices.push_back(GLuint(0));
-//		indices.push_back(GLuint(1));
-//		indices.push_back(GLuint(2));
-//		indices.push_back(GLuint(3));
-//	}
-//	std::cout << "#indices: " << indices.size() << std::endl;
+	std::vector<GLuint> indices;
+	{
+		indices.push_back(GLuint(0));
+		indices.push_back(GLuint(1));
+		indices.push_back(GLuint(3));
+		
+		indices.push_back(GLuint(1));
+		indices.push_back(GLuint(2));
+		indices.push_back(GLuint(3));
+
+		indices.push_back(GLuint(1));
+		indices.push_back(GLuint(5));
+		indices.push_back(GLuint(2));
+
+		indices.push_back(GLuint(5));
+		indices.push_back(GLuint(6));
+		indices.push_back(GLuint(2));
+
+		indices.push_back(GLuint(3));
+		indices.push_back(GLuint(2));
+		indices.push_back(GLuint(7));
+
+		indices.push_back(GLuint(2));
+		indices.push_back(GLuint(6));
+		indices.push_back(GLuint(7));
+
+		indices.push_back(GLuint(5));
+		indices.push_back(GLuint(4));
+		indices.push_back(GLuint(7));
+
+		indices.push_back(GLuint(5));
+		indices.push_back(GLuint(7));
+		indices.push_back(GLuint(6));
+
+		indices.push_back(GLuint(0));	
+		indices.push_back(GLuint(4));
+		indices.push_back(GLuint(1));
+
+		indices.push_back(GLuint(1));
+		indices.push_back(GLuint(4));
+		indices.push_back(GLuint(5));
+
+		indices.push_back(GLuint(0));
+		indices.push_back(GLuint(3));
+		indices.push_back(GLuint(4));
+
+		indices.push_back(GLuint(3));
+		indices.push_back(GLuint(7));
+		indices.push_back(GLuint(4));
+	}
+	std::cout << "#indices: " << indices.size() << std::endl;
 
 	glGenVertexArrays(1, &mVao);
 	glGenBuffers(1, &mVBuf);
-	glGenBuffers(1, &mLBuf);
 	glGenBuffers(1, &mIBuf);
 
 	glBindVertexArray(mVao);
@@ -212,14 +251,9 @@ void OpenGLQtContext::initScene()
 		glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat) * vertices.size(), &(vertices[0]), GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
-		
-		glBindBuffer(GL_ARRAY_BUFFER, mLBuf);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * levels.size(), &(levels[0]), GL_STATIC_DRAW);
-		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, 0);
-		glEnableVertexAttribArray(1);
 
-//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBuf);
-//		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &(indices[0]), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBuf);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &(indices[0]), GL_STATIC_DRAW);
 
 		
 	}
@@ -234,21 +268,21 @@ void OpenGLQtContext::initScene()
 //
 void OpenGLQtContext::initMatrices()
 {
-	mModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -300.0));
+	mModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, -0.5f));
+	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0));
 	mModelViewMatrix = mViewMatrix * mModelMatrix;
-	mNormalMatrix = glm::transpose(glm::inverse(mModelViewMatrix));
 	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 1000.f);
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
-
+	mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 
 	glUseProgram(mShaderID);
-	GLuint mvpMatrixLocation = glGetUniformLocation(mShaderID, "MVP");
-	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
-	GLuint mvMatrixLocation = glGetUniformLocation(mShaderID, "MV");
-	glUniformMatrix4fv(mvMatrixLocation, 1, GL_FALSE, &mModelViewMatrix[0][0]);
-	GLuint normalMatrixLocation = glGetUniformLocation(mShaderID, "normalMatrix");
-	glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE, &mNormalMatrix[0][0]);
+	GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
+	glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
+	GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
+	glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
+	GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
+	glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
+
 }
 //
 
@@ -308,12 +342,12 @@ void OpenGLQtContext::paintGL()
    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 
-	glUseProgram(mShaderID);
-	GLuint mvpMatrixLocation = glGetUniformLocation(mShaderID, "MVP");
-	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
+//	glUseProgram(mShaderID);
+//	GLuint mvpMatrixLocation = glGetUniformLocation(mShaderID, "MVP");
+//	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
 	glBindVertexArray(mVao);
 //		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, nullptr);
-		glDrawArrays(GL_POINTS, 0, mTree->getCut().size());
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 	
 //	glm::vec3 cam(0.0f, 0.0f, 0.0f);
 
@@ -325,43 +359,17 @@ void OpenGLQtContext::paintGL()
 //	float ranZ = (float)(rand() %10000- 5000) - ranY;
 //	cam = glm::vec3(cam.x +ranX , cam.y + ranY , cam.z + ranZ );
 	
-	glm::vec4 cam = mViewMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 cam = mProjectionMatrix * (-1) * mViewMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glUseProgram(mShaderID);
+	GLuint camLocation = glGetUniformLocation(mShaderID, "camPosition");
+	glUniform4fv(camLocation, 1, GL_FALSE, &cam[0]);
+	
 	++mFrameCounter;
-	mTree->updateCut(glm::vec3(-cam.x, -cam.y, - cam.z));
+	mTree->updateCut(glm::vec3(cam.x, cam.y, cam.z));
 //	std::cout << "cam " << -cam.x << " " << -cam.y << " " << -cam.z << std::endl;
 	
 
-	std::vector<glm::vec3> vertices;
-	std::vector<unsigned int>levels;
-	{
-		for (int i : mTree->getCut())
-		{
-			vertices.push_back(mTree->getTree()[i]->getCenter());
-			glm::vec3 c = mTree->getTree()[i]->getCenter();
-			levels.push_back(mTree->getTree()[i]->getLevel());
-			//std::cout << c.x << " " << c.y << " " << c.z << std::endl;
-		}
-	}
 
-
-
-	glBindVertexArray(mVao);
-	{	
-		glBindBuffer(GL_ARRAY_BUFFER, mVBuf);
-		glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat) * vertices.size(), &(vertices[0]), GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(0);
-		
-		glBindBuffer(GL_ARRAY_BUFFER, mLBuf);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * levels.size(), &(levels[0]), GL_STATIC_DRAW);
-		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, 0);
-		glEnableVertexAttribArray(1);
-//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBuf);
-//		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &(indices[0]), GL_STATIC_DRAW);
-
-		
-	}
-	glBindVertexArray(0);
 	update();
 }
 //
@@ -378,7 +386,14 @@ void OpenGLQtContext::resizeGL(int width, int height)
 	glViewport(0, 0, width, height);
 	resize(width, height);
 	mProjectionMatrix = glm::perspective(60.0f, float(width) / float(height), 0.1f, 1000.f);
+	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
+	mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 
+	glUseProgram(mShaderID);
+	GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
+	glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
+	GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
+	glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
 }
 //
 
@@ -405,27 +420,27 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 					qApp->quit();
 					break;
 		case Qt::Key_Left:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (10.0f, 0.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (1.0f, 0.0f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Right:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (-10.0f, 0.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (-1.0f, 0.0f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Up:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 10.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 1.0f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Down:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, -10.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, -1.0f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_PageUp:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, 10.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, 1.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_PageDown:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, -10.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, -1.0f)) * mViewMatrix;
 					break;
 		
 		default:		
@@ -434,10 +449,13 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 
 		mModelViewMatrix = mViewMatrix * mModelMatrix;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
+		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 
 		glUseProgram(mShaderID);
 		GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
 		glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
+		GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
+		glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
 		GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
 		glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
 
@@ -465,13 +483,53 @@ void OpenGLQtContext::mousePressEvent(QMouseEvent *event)
 //
 void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 {
-	//int dx = event->x() - lastPos_.x();
-	//int dy = event->y() - lastPos_.y();
+	int dx = event->x() - mLastPos.x();
+	int dy = event->y() - mLastPos.y();
 
 
-	//lastPos_ = event->pos();
+	mLastPos = event->pos();
 
-	update();
+
+
+	if (event->buttons() & Qt::LeftButton)
+	{
+		if (dx < 0)
+		mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
+		else
+		mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		if (dy < 0)
+			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
+		else
+			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
+	}
+	else if (event->buttons() & Qt::RightButton)
+	{
+		// if (dx < 0)
+		//
+		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
+		// else
+		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
+		//
+		// if (dy < 0)
+		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
+		// else
+		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
+	}
+
+		mModelViewMatrix = mViewMatrix * mModelMatrix;
+		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
+		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
+
+		glUseProgram(mShaderID);
+		GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
+		glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
+		GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
+		glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
+		GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
+		glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
+
+		update();
 }
 //
 
