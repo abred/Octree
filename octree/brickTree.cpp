@@ -125,7 +125,7 @@ void BrickTree::buildTree(unsigned char * data, unsigned int width, unsigned int
 		BrickData tmp = q.front();
 		q.pop();
 		computeBrick(data, tmp.width, tmp.height, tmp.depth, tmp.offsetX, tmp.offsetY, tmp.offsetZ , tmp.level);
-		
+//	std::cout << (int)tmp.level << " ";	
 		if(int(tmp.width/BRICKSIZE) > 1)
 		{
 			if (tmp.offsetX == 0 && tmp.offsetY == 0 && tmp.offsetZ == 0)

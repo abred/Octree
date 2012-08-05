@@ -85,6 +85,7 @@ class OpenGLQtContext : public QGLWidget
 
 			GLuint		mVao;
 			GLuint		mVBuf;
+			GLuint		mLBuf;
 			GLuint		mIBuf;
 
 			QTimer *        mTimer;

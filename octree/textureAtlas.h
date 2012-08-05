@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 
 class TextureAtlas
@@ -26,12 +27,13 @@ class TextureAtlas
 	private:
 		
 		std::vector<Brick*> const* mTree;
-		std::vector<unsigned int> mCutMap;
+		std::unordered_map<unsigned int, unsigned int> mCutMap;
+		std::list<unsigned int> mEmptySlots;
 		
 		GLuint mTextureAtlas;
 		GLuint mIndexTexture;
 		
-		
+		Dimension mDim;
 		
 };
 

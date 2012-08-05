@@ -175,6 +175,7 @@ void OpenGLQtContext::initScene()
 	initMatrices();
 
 	std::vector<glm::vec3> vertices;
+	std::vector<unsigned int>levels;
 	{
 //		vertices.push_back(glm::vec2(-1.0f, -1.0f));
 //		vertices.push_back(glm::vec2( 1.0f, -1.0f));
@@ -183,11 +184,13 @@ void OpenGLQtContext::initScene()
 		for (int i : mTree->getCut())
 		{
 			vertices.push_back(mTree->getTree()[i]->getCenter());
+			levels.push_back(mTree->getTree()[i]->getLevel());
 			glm::vec3 c = mTree->getTree()[i]->getCenter();
 //			std::cout << mTree->getCut().size() << " " << c.x << " " << c.y << " " << c.z << std::endl;
 		}
 	}
 	std::cout << "#vertices: " << vertices.size() << std::endl;
+	std::cout << "#levelsize: " << levels.size() << std::endl;
 
 //	std::vector<GLuint> indices;
 //	{
@@ -200,6 +203,7 @@ void OpenGLQtContext::initScene()
 
 	glGenVertexArrays(1, &mVao);
 	glGenBuffers(1, &mVBuf);
+	glGenBuffers(1, &mLBuf);
 	glGenBuffers(1, &mIBuf);
 
 	glBindVertexArray(mVao);
@@ -208,6 +212,11 @@ void OpenGLQtContext::initScene()
 		glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat) * vertices.size(), &(vertices[0]), GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
+		
+		glBindBuffer(GL_ARRAY_BUFFER, mLBuf);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * levels.size(), &(levels[0]), GL_STATIC_DRAW);
+		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, 0);
+		glEnableVertexAttribArray(1);
 
 //		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBuf);
 //		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &(indices[0]), GL_STATIC_DRAW);
@@ -323,11 +332,13 @@ void OpenGLQtContext::paintGL()
 	
 
 	std::vector<glm::vec3> vertices;
+	std::vector<unsigned int>levels;
 	{
 		for (int i : mTree->getCut())
 		{
 			vertices.push_back(mTree->getTree()[i]->getCenter());
 			glm::vec3 c = mTree->getTree()[i]->getCenter();
+			levels.push_back(mTree->getTree()[i]->getLevel());
 			//std::cout << c.x << " " << c.y << " " << c.z << std::endl;
 		}
 	}
@@ -340,7 +351,11 @@ void OpenGLQtContext::paintGL()
 		glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat) * vertices.size(), &(vertices[0]), GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
-
+		
+		glBindBuffer(GL_ARRAY_BUFFER, mLBuf);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * levels.size(), &(levels[0]), GL_STATIC_DRAW);
+		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, 0);
+		glEnableVertexAttribArray(1);
 //		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBuf);
 //		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &(indices[0]), GL_STATIC_DRAW);
 
