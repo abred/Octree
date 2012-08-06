@@ -94,7 +94,8 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 	int stepWidth = (int) (width / BRICKSIZE) ;
 	int stepHeight= (int) (height / BRICKSIZE) ;
 	int stepDepth = (int) (depth / BRICKSIZE) ;
-		
+	
+//	std::cout << (int)level << " " << width << " " << height << " " << depth << " " << offsetX << " " << offsetY << " " << offsetZ << " " << stepWidth << " " << stepHeight << " " << stepDepth <<  std::endl;	
 	unsigned char (* brickData)[BRICKSIZE][BRICKSIZE] = new (unsigned char[BRICKSIZE][BRICKSIZE][BRICKSIZE]);
 	
 	for (unsigned int i = 0, ii = 0; i < depth; i += stepDepth , ++ii)
@@ -103,10 +104,16 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 		{
 			for ( unsigned int k = 0 , kk = 0 ; k < width ; k += stepWidth , ++kk )
 			{
-				
-				brickData[kk][jj][ii]= data[(offsetX + k - kk) + width * (offsetY + j -jj) + width * height * (offsetZ + i - ii)]; 					
+//				std::cout << (offsetX + k) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i) << " " << (offsetX + k - kk) + width * (offsetY + j - jj) + width * height * (offsetZ + i - ii) << " " << (int)level << std::endl;
+//				if (level != 0 && data[(offsetX + k) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i)] != 0)
+//				{
+//					std::cout << data[(offsetX + k) + width * (offsetY + j) + width * height * (offsetZ + i)] << " ";
+//				}
+				brickData[kk][jj][ii]= data[(offsetX + k) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i)]; 					
 			}
+//			std::cout << std::endl;
 		}
+//		std::cout << i << " " << ii << " " << stepDepth << "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n\n";
 	}
 	
 	mTree.push_back(new Brick(brickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2) , level));
@@ -125,7 +132,7 @@ void BrickTree::buildTree(unsigned char * data, unsigned int width, unsigned int
 		BrickData tmp = q.front();
 		q.pop();
 		computeBrick(data, tmp.width, tmp.height, tmp.depth, tmp.offsetX, tmp.offsetY, tmp.offsetZ , tmp.level);
-//	std::cout << (int)tmp.level << " ";	
+		
 		if(int(tmp.width/BRICKSIZE) > 1)
 		{
 			if (tmp.offsetX == 0 && tmp.offsetY == 0 && tmp.offsetZ == 0)

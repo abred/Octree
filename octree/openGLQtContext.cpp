@@ -166,7 +166,7 @@ void OpenGLQtContext::initializeGL()
 //
 void OpenGLQtContext::initScene()
 {
-	VolumeLoader* l = new VolumeLoader("res/foot_w256_h256_d256_c1_b8.raw");
+	VolumeLoader* l = new VolumeLoader("res/Engine_w256_h256_d256_c1_b8.raw");
 	l->loadData();
 	
 	mTree = new BrickTree(l->getData() , l->getDimension().width , l->getDimension().height , l->getDimension().depth, glm::vec3(0.0f, 0.0f, -10.0f));
@@ -268,7 +268,7 @@ void OpenGLQtContext::initScene()
 //
 void OpenGLQtContext::initMatrices()
 {
-	mModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, -0.5f));
+	mModelMatrix = glm::mat4(1.0f);
 	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0));
 	mModelViewMatrix = mViewMatrix * mModelMatrix;
 	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 1000.f);
@@ -327,6 +327,12 @@ void OpenGLQtContext::initShader()
 		glDeleteShader(fragmentShader);
 
 		glUseProgram(mShaderID);
+	
+	GLuint indTexLocation = glGetUniformLocation(mShaderID, "indexTexture");
+	glUniform1i(indTexLocation, 1);
+	GLuint texAtlLocation = glGetUniformLocation(mShaderID, "textureAtlas");
+	glUniform1i(texAtlLocation, 0);
+	
 }
 
 
@@ -359,10 +365,10 @@ void OpenGLQtContext::paintGL()
 //	float ranZ = (float)(rand() %10000- 5000) - ranY;
 //	cam = glm::vec3(cam.x +ranX , cam.y + ranY , cam.z + ranZ );
 	
-	glm::vec4 cam = mProjectionMatrix * (-1) * mViewMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 cam = glm::inverse(mModelMatrix) * glm::inverse(mViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	glUseProgram(mShaderID);
 	GLuint camLocation = glGetUniformLocation(mShaderID, "camPosition");
-	glUniform4fv(camLocation, 1, GL_FALSE, &cam[0]);
+	glUniform4fv(camLocation, 1, &cam[0]);
 	
 	++mFrameCounter;
 	mTree->updateCut(glm::vec3(cam.x, cam.y, cam.z));
@@ -420,27 +426,27 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 					qApp->quit();
 					break;
 		case Qt::Key_Left:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (1.0f, 0.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.1f, 0.0f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Right:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (-1.0f, 0.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (-0.1f, 0.0f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Up:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 1.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.1f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Down:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, -1.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, -0.1f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_PageUp:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, 1.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, 0.1f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_PageDown:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, -1.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, -0.1f)) * mViewMatrix;
 					break;
 		
 		default:		

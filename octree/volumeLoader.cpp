@@ -76,7 +76,19 @@ void VolumeLoader::loadData()
 
 unsigned char* VolumeLoader::getData()
 {
-
+	int count0 = 0;
+	int count1 = 0;
+	for (unsigned int i = 0; i < 256*256*256; i += 1)
+	{
+		if ((int) mData[i] != 0)
+		{
+		++count1;
+//		std::cout << (int) mData[i] << std::endl;
+		}
+		else
+		++count0;
+	} 
+	std::cout << "c0" << count0 << " c1 " << count1 << std::endl;
 	return mData;
 }
 
