@@ -5,11 +5,11 @@ CONFIG += console
 TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
-INCLUDEPATH += . include/
+INCLUDEPATH += . include/ 
 
 QMAKE_CXXFLAGS += -std=c++0x -g -O0
 
-LIBS =  -L/home/abred/qtDebug/lib/ -L/usr/lib64/ -L/usr/lib/ -L/usr/local/lib -L../lib -lGL -lGLEW 
+LIBS =  -L/home/mahu/qt/lib  -L/usr/lib/ -L/usr/local/lib -L../lib -lGL -lGLEW
 
 # Input
 HEADERS += mainWindow.h \
@@ -18,7 +18,8 @@ HEADERS += mainWindow.h \
            brick.h\
            brickTree.h\
 	   comperator.h \
-	   textureAtlas.h
+	   textureAtlas.h\
+		
            
 FORMS += ui/widget.ui
 

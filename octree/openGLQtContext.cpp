@@ -138,7 +138,7 @@ void OpenGLQtContext::initializeGL()
 
 
 //	glClearDepth(1.0f);
-	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+	glClearColor( 0.0f, 1.0f, 0.0f, 0.0f );
 
 //	glDisable(GL_PROGRAM_POINT_SIZE);
 //	glPointSize(5.0f);
@@ -149,7 +149,7 @@ void OpenGLQtContext::initializeGL()
 	glEnable( GL_DEPTH_TEST );
 	//glDepthFunc(GL_LESS);
 //	glCullFace(GL_BACK);
-	glDisable(GL_CULL_FACE);
+//	glDisable(GL_CULL_FACE);
 //	glFrontFace(GL_CCW);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -169,7 +169,7 @@ void OpenGLQtContext::initScene()
 	VolumeLoader* l = new VolumeLoader("res/Engine_w256_h256_d256_c1_b8.raw");
 	l->loadData();
 	
-	mTree = new BrickTree(l->getData() , l->getDimension().width , l->getDimension().height , l->getDimension().depth, glm::vec3(0.0f, 0.0f, -10.0f));
+	mTree = new BrickTree(l->getData() , l->getDimension().width , l->getDimension().height , l->getDimension().depth, glm::vec3(0.0f, 0.0f, 3.0f));
 
 
 	initShader();
@@ -269,8 +269,10 @@ void OpenGLQtContext::initScene()
 void OpenGLQtContext::initMatrices()
 {
 	mModelMatrix = glm::mat4(1.0f);
-	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0));
+//	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0));
+	mViewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	mModelViewMatrix = mViewMatrix * mModelMatrix;
+	mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
 	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 1000.f);
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 	mMVPInverseMatrix = glm::inverse(mMVPMatrix);
@@ -280,6 +282,8 @@ void OpenGLQtContext::initMatrices()
 	glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
 	GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
 	glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
+	GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVInverse");
+	glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
 	GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
 	glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
 
@@ -333,6 +337,14 @@ void OpenGLQtContext::initShader()
 	GLuint texAtlLocation = glGetUniformLocation(mShaderID, "textureAtlas");
 	glUniform1i(texAtlLocation, 0);
 	
+	GLuint numsamLocation = glGetUniformLocation(mShaderID, "numSamples");
+	glUniform1i(numsamLocation , 1000);
+	
+	GLuint stepSizeLocation = glGetUniformLocation(mShaderID, "stepSize");
+	glUniform1f(stepSizeLocation , 0.01f );
+	
+	
+	
 }
 
 
@@ -348,6 +360,18 @@ void OpenGLQtContext::paintGL()
    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 
+	glm::vec4 cam = glm::inverse(mModelViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glUseProgram(mShaderID);
+	GLuint camLocation = glGetUniformLocation(mShaderID, "camPosition");
+	glUniform4fv(camLocation, 1, &cam[0]);
+	
+	++mFrameCounter;
+	glm::vec4 cam2 = glm::inverse(mViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	mTree->updateCut(glm::vec3(cam2.x, cam2.y, cam2.z));
+	std::cout << "cam  " << cam.x << " " << cam.y << " " << cam.z << std::endl;
+	std::cout << "cam2 " << cam2.x << " " << cam2.y << " " << cam2.z << std::endl;
+	
+	
 //	glUseProgram(mShaderID);
 //	GLuint mvpMatrixLocation = glGetUniformLocation(mShaderID, "MVP");
 //	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
@@ -365,14 +389,7 @@ void OpenGLQtContext::paintGL()
 //	float ranZ = (float)(rand() %10000- 5000) - ranY;
 //	cam = glm::vec3(cam.x +ranX , cam.y + ranY , cam.z + ranZ );
 	
-	glm::vec4 cam = glm::inverse(mModelMatrix) * glm::inverse(mViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	glUseProgram(mShaderID);
-	GLuint camLocation = glGetUniformLocation(mShaderID, "camPosition");
-	glUniform4fv(camLocation, 1, &cam[0]);
-	
-	++mFrameCounter;
-	mTree->updateCut(glm::vec3(cam.x, cam.y, cam.z));
-//	std::cout << "cam " << -cam.x << " " << -cam.y << " " << -cam.z << std::endl;
+
 	
 
 
@@ -400,6 +417,17 @@ void OpenGLQtContext::resizeGL(int width, int height)
 	glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
 	GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
 	glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
+	
+	GLuint wsLocation = glGetUniformLocation(mShaderID, "windowSize");
+	glUniform2f(wsLocation, float(width), float(height));
+	
+	
+	float focalLength = 1.0f/ std::tan(1.047f/2.0f);
+	
+	GLuint flLocation = glGetUniformLocation(mShaderID, "focalLength");
+	glUniform1f(flLocation, focalLength);
+	
+	
 }
 //
 
@@ -456,12 +484,15 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 		mModelViewMatrix = mViewMatrix * mModelMatrix;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
-
+		mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
+		
 		glUseProgram(mShaderID);
 		GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
 		glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
 		GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
 		glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
+		GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVInverse");
+		glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
 		GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
 		glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
 
@@ -526,6 +557,7 @@ void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 		mModelViewMatrix = mViewMatrix * mModelMatrix;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
+		mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
 
 		glUseProgram(mShaderID);
 		GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
@@ -534,7 +566,8 @@ void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 		glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
 		GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
 		glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
-
+		GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVInverse");
+		glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
 		update();
 }
 //

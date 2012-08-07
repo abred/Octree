@@ -3,7 +3,7 @@
 
 #define BRICKSIZE 128
 #define CUTSIZE 128
-#define MAXREPLACEMENTS 16
+#define MAXREPLACEMENTS 512
 
 #include <iostream>
 #include "glm/glm.hpp"

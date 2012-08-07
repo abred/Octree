@@ -15,7 +15,7 @@ bool CamDistanceComperator::operator() (int &lhs, int &rhs) const
 	if(!hasChild(lhs))
 		return false;
 	else
-		return(glm::length(mCam - (*mTree)[lhs]->getCenter()) < glm::length(mCam - (*mTree)[rhs]->getCenter()));
+		return(glm::length(mCam - (*mTree)[lhs]->getCenter()/255.0f) < glm::length(mCam - (*mTree)[rhs]->getCenter()/255.0f));
 }
 
 
@@ -42,7 +42,7 @@ CamDistanceComperator2::CamDistanceComperator2(glm::vec3 &cam, std::vector<Brick
 
 bool CamDistanceComperator2::operator() (int &lhs, int &rhs) const
 {
-	return(glm::length(mCam - (*mTree)[lhs]->getCenter()) > glm::length(mCam - (*mTree)[rhs]->getCenter()));
+	return(glm::length(mCam - (*mTree)[lhs]->getCenter()/255.0f) > glm::length(mCam - (*mTree)[rhs]->getCenter()/255.0f));
 }
 
 
@@ -60,7 +60,7 @@ CamDistanceComperator3::CamDistanceComperator3(glm::vec3 &cam, std::vector<Brick
 
 bool CamDistanceComperator3::operator() (int &lhs, int &rhs) const
 {
-	return(glm::length(mCam - (*mTree)[lhs]->getCenter()) < glm::length(mCam - (*mTree)[rhs]->getCenter()));
+	return(glm::length(mCam - (*mTree)[lhs]->getCenter()/255.0f) < glm::length(mCam - (*mTree)[rhs]->getCenter()/255.0f));
 }
 
 
@@ -110,13 +110,13 @@ bool SplitComperator::operator() (int &lhs, int &rhs) const
 	{
 		
 
-		errorSumLhsChild += diagLhs * 0.5f / (diagLhs * 0.5f + glm::length(mCam - (*mTree)[8 * lhs + i + 1]->getCenter()));
-		errorSumRhsChild += diagRhs * 0.5f / (diagRhs * 0.5f + glm::length(mCam - (*mTree)[8 * rhs + i + 1]->getCenter()));
+		errorSumLhsChild += diagLhs * 0.5f / (diagLhs * 0.5f + glm::length(mCam - (*mTree)[8 * lhs + i + 1]->getCenter()/255.0f));
+		errorSumRhsChild += diagRhs * 0.5f / (diagRhs * 0.5f + glm::length(mCam - (*mTree)[8 * rhs + i + 1]->getCenter()/255.0f));
 		
 	}
 
-	float errorLhs = diagLhs / (diagLhs + glm::length(mCam - (*mTree)[lhs]->getCenter()));
-	float errorRhs = diagRhs / (diagRhs + glm::length(mCam - (*mTree)[rhs]->getCenter()));
+	float errorLhs = diagLhs / (diagLhs + glm::length(mCam - (*mTree)[lhs]->getCenter()/255.0f));
+	float errorRhs = diagRhs / (diagRhs + glm::length(mCam - (*mTree)[rhs]->getCenter()/255.0f));
   			
 	return (errorLhs - errorSumLhsChild/8.0f) > (errorRhs - errorSumRhsChild/8.0f);
 }
@@ -174,12 +174,12 @@ bool CollapseComperator::operator() (int &lhs, int &rhs) const
   	
   	for(unsigned int i = 0; i < 8; ++i)
   	{
-  		errorSumLhsChild += diagLhs * 0.5f / (diagLhs * 0.5f + glm::length(mCam - (*mTree)[8 * lhs + i + 1]->getCenter()));
-  		errorSumRhsChild += diagRhs * 0.5f / (diagRhs * 0.5f + glm::length(mCam - (*mTree)[8 * rhs + i + 1]->getCenter()));
+  		errorSumLhsChild += diagLhs * 0.5f / (diagLhs * 0.5f + glm::length(mCam - (*mTree)[8 * lhs + i + 1]->getCenter()/255.0f));
+  		errorSumRhsChild += diagRhs * 0.5f / (diagRhs * 0.5f + glm::length(mCam - (*mTree)[8 * rhs + i + 1]->getCenter()/255.0f));
   	}
 
-  	float errorLhs = diagLhs / (diagLhs + glm::length(mCam - (*mTree)[lhs]->getCenter()));
-  	float errorRhs = diagRhs / (diagRhs + glm::length(mCam - (*mTree)[rhs]->getCenter()));
+  	float errorLhs = diagLhs / (diagLhs + glm::length(mCam - (*mTree)[lhs]->getCenter()/255.0f));
+  	float errorRhs = diagRhs / (diagRhs + glm::length(mCam - (*mTree)[rhs]->getCenter()/255.0f));
   	
   	return (errorLhs - errorSumLhsChild/8.0f) < (errorRhs - errorSumRhsChild/8.0f);
 }

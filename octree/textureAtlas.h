@@ -21,17 +21,19 @@ class TextureAtlas
 		~TextureAtlas ();
 		
 		void initTextures(std::list<int> const&, Dimension);
-		void updateTextures(std::list<unsigned char> const & , std::list<unsigned char> const &);
+		void updateTextures(std::list<int> const & , std::list<int> const &);
 		
 
 	private:
 		
 		std::vector<Brick*> const* mTree;
-		std::unordered_map<unsigned int, unsigned int> mCutMap;
-		std::list<unsigned int> mEmptySlots;
+		std::unordered_map<int, int> mCutMap;
+		std::list<int> mEmptySlots;
 		
 		GLuint mTextureAtlas;
 		GLuint mIndexTexture;
+
+		GLuint mTexAtlasBuffer;
 		
 		Dimension mDim;
 		

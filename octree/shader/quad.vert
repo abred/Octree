@@ -9,6 +9,6 @@ out vec4 vPosition;
 void main()
 {
 	gl_Position = MVP * vec4(Position, 1.0);
-//	vPosition = vec4(Position, 1.0);
-	vPosition = gl_Position;
+	vPosition = vec4(Position, 1.0);
+//	vPosition = gl_Position;
 }

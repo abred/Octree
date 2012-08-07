@@ -77,6 +77,7 @@ class OpenGLQtContext : public QGLWidget
 			glm::mat4	mModelMatrix;
 			glm::mat4	mViewMatrix;
 			glm::mat4	mModelViewMatrix;
+			glm::mat4	mMVInverseMatrix;
 			glm::mat4	mNormalMatrix;
 			glm::mat4	mProjectionMatrix;
 			glm::mat4	mMVPMatrix;
