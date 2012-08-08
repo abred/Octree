@@ -61,7 +61,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 		}
 		else
 		{
-			std::cout << "r " << r << " " << mCollapsibleNodes.size() << " " << mSplittableNodes.size() << " " << getError(mSplittableNodes.front(), cam) << " " << getError(mCollapsibleNodes.front(), cam) << "zzzzzzzzzzzzzzzzzzzzz\n";
+//			std::cout << "r " << r << " " << mCollapsibleNodes.size() << " " << mSplittableNodes.size() << " " << getError(mSplittableNodes.front(), cam) << " " << getError(mCollapsibleNodes.front(), cam) << "zzzzzzzzzzzzzzzzzzzzz\n";
 			break;
 		}
 	}
@@ -98,6 +98,7 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 	int stepHeight= (int) (height / BRICKSIZE) ;
 	int stepDepth = (int) (depth / BRICKSIZE) ;
 	
+	double ratio = 256.0 / 248.0;
 //	std::cout << (int)level << " " << width << " " << height << " " << depth << " " << offsetX << " " << offsetY << " " << offsetZ << " " << stepWidth << " " << stepHeight << " " << stepDepth <<  std::endl;	
 	unsigned char (* brickData)[BRICKSIZE][BRICKSIZE] = new (unsigned char[BRICKSIZE][BRICKSIZE][BRICKSIZE]);
 	
@@ -112,7 +113,13 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 //				{
 //					std::cout << data[(offsetX + k) + width * (offsetY + j) + width * height * (offsetZ + i)] << " ";
 //				}
-				brickData[kk][jj][ii]= data[(offsetX + k ) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i)]; 					
+				double tmp;
+				double index = ((offsetX + k - offsetX/width ) + mDimension.width * (offsetY + j - offsetY/height) + mDimension.width * mDimension.height * (offsetZ + i - offsetZ/depth)) * ratio;
+
+//				std::cout << "blub " << index << " " << std::floor(index) << " " << (1.0 - (index - std::floor(index))) << " " << (index - std::floor(index)) << std::endl;
+				brickData[kk][jj][ii] = data[int(std::floor(index))] * (1.0 - (index - std::floor(index))) + data[int(std::ceil(index))] * (index - std::floor(index));
+				
+//				brickData[kk][jj][ii]= data[(offsetX + k ) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i)]; 					
 			}
 //			std::cout << std::endl;
 		}
