@@ -14,6 +14,14 @@ uniform float focalLength;
 uniform float stepSize;
 uniform int numSamples;
 
+uniform int BRICKSIZE;
+uniform float VALUERANGE;
+
+uniform float width;
+uniform float height;
+uniform float depth;
+
+
 in vec4 vPosition;
 
 
@@ -44,20 +52,15 @@ void main()
 	vec3 dst = vec3(0.0);
 	while (dist < maxDist)
 	{
-		ivec3 index = ivec3(floor(pos.x * 32.0), floor(pos.y * 32.0), floor(pos.z * 32.0));
+		ivec3 index = ivec3(floor(pos.x * 16.0), floor(pos.y * 16.0), floor(pos.z * 16.0));
 		uvec4 bla = texelFetch(indexTexture , index, 0);
 		
-//		vec4 pos2 = vec4 (fract(pos.x * 255.0/8.0), fract(pos.y * 255.0/8.0), fract(pos.z * 255.0/8.0), 8.0 * 8.0 * 8.0 * bla.x );
-		vec4 pos2 = vec4 ( fract(pos.x *bla.y)*7.0, fract(pos.y * bla.y) *7.0, fract(pos.z * bla.y) *7.0, 8.0 * 8.0 * 8.0 * bla.x );
+		vec4 pos2 = vec4 ( fract(pos.x * bla.y) * 63.0, fract(pos.y * bla.y) * 63.0, fract(pos.z * bla.y) * 63.0, 64 * 64 * 64 * bla.x );
 
 		
 		float value = trilinearSample(pos2);
-		vec3 src;
-//		if (value < 1.0)
-//		src = vec3(0.0);
-//		else
-		src = vec3((value/255.0), (value/255.0), (value/255.0));
-		float alpha = value/255.0;
+		vec3 src = vec3((value/VALUERANGE), (value/VALUERANGE), (value/VALUERANGE));
+		float alpha = value/VALUERANGE;
 		
 		dst.r = max(src.r , dst.r);
 		dst.g = max(src.g , dst.g);
@@ -66,87 +69,8 @@ void main()
 		pos += 0.001 * rayDir;
 		dist = length(pos - rayOrigin);
 	}
-////		FragColor= vec4(dst, 1.0);
 	
-//	FragColor = vec4((texelFetch(indexTexture, ivec3(0, 3, 0), 0)).x/633.0, 0.0, 0.0, 1.0);
-//	FragColor = vec4((float((texelFetch(textureAtlas, ivec3(0,0,0), 1)).x)/255.0, 0.0, 1.3, 1.0));
-//	vec4 blub = texelFetch(textureAtlas, ivec3(vPosition.x * 8, vPosition.y * 8, 32.0), 0);
-//	FragColor = vec4(blub.x/255.0, blub.y/255.0, blub.z/255.0, 1.0);
-//	FragColor = vec4(dst, 1.0);
-
-
-//	vec3 rD;
-//	rD.xy = 2.0 * gl_FragCoord.xy/windowSize -1.0;
-//	rD.z = -focalLength;
-//	rD = normalize((MVInverse * vec4(rD, 0)).xyz);
-//	Ray r = Ray(camPosition.xyz , vec3(0.0,0.0,1.0));
-//	
-//	float tNear;
-//	float tFar;
-//	
-//	intersectBox(r , tNear , tFar);
-//	
-//	if(tNear < 0.0 )
-//		tNear = 0.0;
-
-//	vec3 rayStart = r.origin + r.direction * tNear;
-//	vec3 rayEnd   = r.origin + r.direction * tFar;
-//	
-//	rayStart = 0.5 * (rayStart + 1.0);
-//	rayEnd 	 = 0.5 * (rayEnd + 1.0);
-//	
-//	vec3 pos = rayStart;
-//	vec3 ste = normalize(rayEnd - rayStart) * stepSize; 
-//	
-//	float dist = distance(rayEnd , rayStart);
-
-//	vec3 dst = vec3(0.0);
-//	
-//	for(int i = 0 ; i < numSamples && dist > 0.0 ; ++i , pos += ste, dist -= stepSize)
-//	{
-//		ivec3 index = ivec3(floor(pos.x * 256.0/8.0), floor(pos.y * 256.0/8.0), floor(pos.z * 256.0/8.0));
-//		uvec4 bla = texelFetch(indexTexture , index, 0);
-//		
-////		vec4 posAtl = vec4 (fract(pos.x * 256.0/8.0), fract(pos.y * 256.0/8.0), fract(pos.z * 256.0/8.0), 8.0 * 8.0 * 8.0 * bla.x );
-//		vec4 posAtl = vec4 ( (pos.x - bla.y)/bla.y, (pos.y - bla.z) / bla.z*8.0, (pos.z - bla.w) / bla.w *8.0, 8.0 * 8.0 * 8.0 * bla.x );
-//		float value = trilinearSample(posAtl);
-//		vec3 src = vec3((value/255.0), (value/255.0), (value/255.0));
-//		float alpha = value/255.0;
-//		
-//		
-//		
-//		dst.r = max(src.r , dst.r);
-//		dst.g = max(src.g , dst.g);
-//		dst.b = max(src.b , dst.b);
-//		
-////		if(src.x > 0.0)
-////			dst= vec3(0.0,1.0,0.0);
-//	}	
-		
-//	ivec3 index = ivec3(floor(vPosition.x * 256.0/8.0), floor(vPosition.y * 256.0/8.0), floor(vPosition.z * 256.0/8.0));
-//	uvec4 bla = texelFetch(indexTexture , index, 0);
-
-//	int index = int(vPosition.x * 8 + vPosition.y * 8 * 8+ vPosition.z * 8 * 8 * 8);
-//	uvec4 bla = texelFetch(textureAtlas , index);
-//		
-//	if(bla.x == 0)
-//	FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-//	else if(bla.x == 1)
-//	FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-//	else if(bla.x == 2)
-//	FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-//	else if(bla.x == 3)
-//	FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-//	else if(bla.x == 4)
-//	FragColor = vec4(1.0, 0.0, 1.0, 1.0);
-//	else if(bla.x == 5)
-//	FragColor = vec4(0.0, 1.0, 1.0, 1.0);
-//	else if(bla.x >= 6)
-//	FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-//	else
-//	FragColor = vec4(0.5, 0.5, 0.5, 1.0);
-	
-		FragColor= vec4(dst, 1.0);
+	FragColor= vec4(dst, 1.0);
 }
 
 
@@ -244,14 +168,14 @@ float trilinearSample(in vec4 pos)
 	ivec3 p110 = ivec3(cx, cy, fz);
 	ivec3 p111 = ivec3(cx, cy, cz);
 
-	float v000 = (texelFetch(textureAtlas, int(pos.w) + p000.x + 8 * p000.y + 8 * 8 * p000.z));
-	float v001 = (texelFetch(textureAtlas, int(pos.w) + p001.x + 8 * p001.y + 8 * 8 * p001.z));
-	float v010 = (texelFetch(textureAtlas, int(pos.w) + p010.x + 8 * p010.y + 8 * 8 * p010.z));
-	float v011 = (texelFetch(textureAtlas, int(pos.w) + p011.x + 8 * p011.y + 8 * 8 * p011.z));
-	float v100 = (texelFetch(textureAtlas, int(pos.w) + p100.x + 8 * p100.y + 8 * 8 * p100.z));
-	float v101 = (texelFetch(textureAtlas, int(pos.w) + p101.x + 8 * p101.y + 8 * 8 * p101.z));
-	float v110 = (texelFetch(textureAtlas, int(pos.w) + p110.x + 8 * p110.y + 8 * 8 * p110.z));
-	float v111 = (texelFetch(textureAtlas, int(pos.w) + p111.x + 8 * p111.y + 8 * 8 * p111.z));
+	float v000 = (texelFetch(textureAtlas, int(pos.w) + p000.x + 64 * p000.y + 64 * 64 * p000.z));
+	float v001 = (texelFetch(textureAtlas, int(pos.w) + p001.x + 64 * p001.y + 64 * 64 * p001.z));
+	float v010 = (texelFetch(textureAtlas, int(pos.w) + p010.x + 64 * p010.y + 64 * 64 * p010.z));
+	float v011 = (texelFetch(textureAtlas, int(pos.w) + p011.x + 64 * p011.y + 64 * 64 * p011.z));
+	float v100 = (texelFetch(textureAtlas, int(pos.w) + p100.x + 64 * p100.y + 64 * 64 * p100.z));
+	float v101 = (texelFetch(textureAtlas, int(pos.w) + p101.x + 64 * p101.y + 64 * 64 * p101.z));
+	float v110 = (texelFetch(textureAtlas, int(pos.w) + p110.x + 64 * p110.y + 64 * 64 * p110.z));
+	float v111 = (texelFetch(textureAtlas, int(pos.w) + p111.x + 64 * p111.y + 64 * 64 * p111.z));
 
 	// 4 linear
 	float l00 = mix(v000, v100, fract(pos.x));

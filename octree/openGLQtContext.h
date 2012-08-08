@@ -3,7 +3,7 @@
 
 #define BUFFER_OFFSET(i) ((char*) NULL + (i))
 
-//Eigende Header
+
 #include <GL/glew.h>
 //
 //GLM-Header
@@ -38,7 +38,7 @@
 //
 
 
-//#include <IL/il.h>
+//Eigende Header
 #include "volumeLoader.h"
 #include "brick.h"
 #include "brickTree.h"
@@ -99,6 +99,8 @@ class OpenGLQtContext : public QGLWidget
 			glm::vec3	mLastPos;// = glm::vec3(1.0f);
 			GLuint		mWidth;
 			GLuint		mHeight;
+			
+			Dimension	mDim;
 
 
 	public slots:

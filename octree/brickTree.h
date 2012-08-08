@@ -2,9 +2,10 @@
 #define __BRICKTREE_H__
 
 
+#include "glm/glm.hpp"
 
 #include "brick.h"
-#include "glm/glm.hpp"
+#include "utility.h"
 #include "comperator.h"
 #include "volumeLoader.h"
 #include "textureAtlas.h"
@@ -45,7 +46,7 @@ struct BrickData
 class BrickTree
 {
 	public:
-		BrickTree (unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam );
+		BrickTree (valueType * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam );
 		~BrickTree ();
 		
 		
@@ -57,9 +58,9 @@ class BrickTree
 
 	private:
 		
-		void 	computeBrick(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ, unsigned char level );
+		void 	computeBrick(valueType *, unsigned int width, unsigned int height , unsigned int depth , unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ, unsigned char level );
 		
-		void 	buildTree(unsigned char *, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam);
+		void 	buildTree(valueType *, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam);
 		void 	computeCut(glm::vec3 cam);
 		void 	split(int);
 		void 	collapse(int);
@@ -69,7 +70,7 @@ class BrickTree
 		int 	getLevel(int index);
 		float 	getError(int, glm::vec3 cam);
 		
-		float	getTrilinearInterpolation(glm::dvec3 point, unsigned char*);
+		float	getTrilinearInterpolation(glm::dvec3 point, valueType*);
 
 		bool 	isSplittable(int);
 

@@ -17,7 +17,7 @@ class CamDistanceComperator
 {
 	public:
 
-		CamDistanceComperator(glm::vec3 &, std::vector<Brick*>*);
+		CamDistanceComperator(glm::vec3 &, std::vector<Brick*>*, Dimension);
 		bool operator() (int &lhs, int &rhs) const;
   		
 	private:
@@ -26,6 +26,7 @@ class CamDistanceComperator
 
 		glm::vec3 &mCam;
 		std::vector<Brick*>* mTree;
+		Dimension mDim;
 };
 
 //---------------------------------------CamDistanceComperator2---------------------------------------------------------
@@ -33,13 +34,14 @@ class CamDistanceComperator2
 {
 	public:
 
-		CamDistanceComperator2(glm::vec3 &, std::vector<Brick*>*);
+		CamDistanceComperator2(glm::vec3 &, std::vector<Brick*>*, Dimension);
 		bool operator() (int &lhs, int &rhs) const;
   		
 	private:
 
 		glm::vec3 &mCam;
 		std::vector<Brick*>* mTree;
+		Dimension mDim;
 };
 
 
@@ -48,13 +50,14 @@ class CamDistanceComperator3
 {
 	public:
 
-		CamDistanceComperator3(glm::vec3 &, std::vector<Brick*>*);
+		CamDistanceComperator3(glm::vec3 &, std::vector<Brick*>*, Dimension);
 		bool operator() (int &lhs, int &rhs) const;
   		
 	private:
 
 		glm::vec3 &mCam;
 		std::vector<Brick*>* mTree;
+		Dimension mDim;
 };
 
 
@@ -64,7 +67,7 @@ class SplitComperator
 {
 	public:
 
-		SplitComperator(glm::vec3 &cam, std::vector<Brick*>* t) ;
+		SplitComperator(glm::vec3 &cam, std::vector<Brick*>* t, Dimension) ;
 		
 		bool operator() (int &lhs, int &rhs) const;  		
 		int getParent(int index) const;
@@ -74,6 +77,7 @@ class SplitComperator
 	private:
 		glm::vec3 &mCam;
 		std::vector<Brick*>* mTree;
+		Dimension mDim;
 };
 
 
@@ -82,7 +86,7 @@ class SplitComperator
 class CollapseComperator
 {
 	public:
-		CollapseComperator(glm::vec3 &cam, std::vector<Brick*>* t) ;
+		CollapseComperator(glm::vec3 &cam, std::vector<Brick*>* t, Dimension) ;
 		
 		bool operator() (int &lhs, int &rhs) const;
 		int getParent(int index) const;
@@ -90,6 +94,7 @@ class CollapseComperator
 	private:
 		glm::vec3 &mCam;
 		std::vector<Brick*>* mTree;
+		Dimension mDim;
 };
 
 #endif /* __COMPERATOR__CLASS_H__ */

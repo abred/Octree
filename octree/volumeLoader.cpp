@@ -1,7 +1,6 @@
 #include "volumeLoader.h"
 
 
-//boston_w256_h256_d178_c1_b8.raw
 
 VolumeLoader::VolumeLoader(std::string fileName):
 	mFileName(fileName)
@@ -24,6 +23,7 @@ VolumeLoader::VolumeLoader(std::string fileName):
 	//h256
 	ptr = strtok(NULL, delimiter);
 	depth = atoi(++ptr);
+	depth = 1024;
 	//d178
 	ptr = strtok(NULL, delimiter);
 	components = atoi(++ptr);
@@ -40,14 +40,21 @@ VolumeLoader::VolumeLoader(std::string fileName):
 
 }
 
+VolumeLoader::~VolumeLoader()
+{
+	delete[] mData;
+
+}
 
 void VolumeLoader::loadData()
 {
 	
 	std::ifstream fileOperator(mFileName);
-	
+	FILE * pFile = fopen ( mFileName.c_str() , "rb" );
+  	if (pFile==NULL) {fputs ("File error",stderr); exit (1);}
 	unsigned int offset;
-	mData = new unsigned char[height*width*depth];
+	mData = new valueType[height*width*depth];
+	size_t result = 0;
 	if(fileOperator.is_open())
 	{
 		for (unsigned int slice = 0; slice < depth; ++slice)
@@ -55,17 +62,15 @@ void VolumeLoader::loadData()
 			for (unsigned int line = 0; line < height; ++line)
 			{
 				offset = (width * line + width * height * slice) ;
-				fileOperator.seekg(offset);
-				fileOperator.read((char*)&mData[offset] , width);
+//				fileOperator.seekg(offset);
+//				fileOperator.read((char*)&mData[offset] , sizeof(valueType) * width);
+				result = fread (&mData[offset], sizeof(valueType), width, pFile);
+				
 			}
 		}
-	
-//	for (unsigned int i = 0; i < height*width*depth; ++i)
-//	{
-//		std::cout<< (int)mData[i] << std::endl;
-//	}
-//	
+		
 		std::cout<<"File loaded!"<<std::endl;
+		std::cout << result << std::endl;
 	}
 	else
 	{
@@ -74,21 +79,9 @@ void VolumeLoader::loadData()
 
 }
 
-unsigned char* VolumeLoader::getData()
+valueType* VolumeLoader::getData()
 {
-	int count0 = 0;
-	int count1 = 0;
-	for (unsigned int i = 0; i < 256*256*256; i += 1)
-	{
-		if ((int) mData[i] != 0)
-		{
-		++count1;
-//		std::cout << (int) mData[i] << std::endl;
-		}
-		else
-		++count0;
-	} 
-	std::cout << "c0" << count0 << " c1 " << count1 << std::endl;
+
 	return mData;
 }
 

@@ -5,7 +5,7 @@
 
 
 
-BrickTree::BrickTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam ):
+BrickTree::BrickTree(valueType * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam ):
 	mDimension(width,height , depth)
 {
 	buildTree( data , width, height , depth , cam);
@@ -27,11 +27,11 @@ BrickTree::~BrickTree()
 void BrickTree::updateCut(glm::vec3 cam)
 {
 
-//	mCollapsibleNodes.sort(CamDistanceComperator2(cam , &mTree));
-	mCollapsibleNodes.sort(SplitComperator(cam , &mTree));
+//	mCollapsibleNodes.sort(CamDistanceComperator2(cam , &mTree, mDimension));
+	mCollapsibleNodes.sort(SplitComperator(cam , &mTree, mDimension));
 
-//	mSplittableNodes.sort(CamDistanceComperator3(cam , &mTree));
-	mSplittableNodes.sort(CollapseComperator(cam , &mTree));
+//	mSplittableNodes.sort(CamDistanceComperator3(cam , &mTree, mDimension));
+	mSplittableNodes.sort(CollapseComperator(cam , &mTree, mDimension));
 	int r = 0;
 	while(r < MAXREPLACEMENTS)
 	{
@@ -44,7 +44,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 
 		while(!mSplittableNodes.empty() && mCut.size() <= CUTSIZE-7 && r < MAXREPLACEMENTS)
 		{
-			std::cout<< "SPLIT!"<<std::endl;
+//			std::cout<< "SPLIT!"<<std::endl;
 			split(mSplittableNodes.front());			
 //			debugPrint(cam);
 			r += 8;
@@ -52,7 +52,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 
 		if(!mCollapsibleNodes.empty() && !mSplittableNodes.empty() && 	(getError(mSplittableNodes.front(), cam) < getError(mCollapsibleNodes.front(), cam)) && r < MAXREPLACEMENTS)
 		{
-			std::cout<< "COLLAPSE"<<std::endl;
+//			std::cout<< "COLLAPSE"<<std::endl;
 			collapse(mCollapsibleNodes.front());			
 //			debugPrint(cam);
 			r += 1;
@@ -61,7 +61,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 		}
 		else
 		{
-//			std::cout << "r " << r << " " << mCollapsibleNodes.size() << " " << mSplittableNodes.size() << " " << getError(mSplittableNodes.front(), cam) << " " << getError(mCollapsibleNodes.front(), cam) << "zzzzzzzzzzzzzzzzzzzzz\n";
+//			std::cout << "r " << r << " " << mCollapsibleNodes.size() << " " << mSplittableNodes.size() << "\n";// << getError(mSplittableNodes.front(), cam) << " " << getError(mCollapsibleNodes.front(), cam) << "zzzzzzzzzzzzzzzzzzzzz\n";
 			break;
 		}
 	}
@@ -91,54 +91,47 @@ std::list<int> const& BrickTree::getCut() const
 
 
 
-void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned int height , unsigned int depth, unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ , unsigned char level )
+void BrickTree::computeBrick(valueType * data , unsigned int width, unsigned int height , unsigned int depth, unsigned int offsetX , unsigned int offsetY , unsigned int offsetZ , unsigned char level )
 {
 
-	int stepWidth = (int) (width / BRICKSIZE) ;
-	int stepHeight= (int) (height / BRICKSIZE) ;
-	int stepDepth = (int) (depth / BRICKSIZE) ;
+	float stepWidth = (float) width /(float) BRICKSIZE ;
+	float stepHeight= (float) height /(float) BRICKSIZE ;
+	float stepDepth = (float) depth / (float) BRICKSIZE ;
 	
-	double ratio = 255.0 / (256.0 - 256.0/BRICKSIZE);
+
+	double ratio = double(width - 1.0) / double(width - width/BRICKSIZE);
 //	std::cout << (int)level << " " << width << " " << height << " " << depth << " " << offsetX << " " << offsetY << " " << offsetZ << " " << stepWidth << " " << stepHeight << " " << stepDepth <<  std::endl;	
-	unsigned char (* brickData)[BRICKSIZE][BRICKSIZE] = new (unsigned char[BRICKSIZE][BRICKSIZE][BRICKSIZE]);
-	unsigned char* newBrickData = new unsigned char [BRICKSIZE*BRICKSIZE*BRICKSIZE];
-	
-	for (unsigned int i = 0, ii = 0; i < depth; i += stepDepth , ++ii)
+	valueType* brickData = new valueType [BRICKSIZE*BRICKSIZE*BRICKSIZE];
+//	std::cout << stepDepth << " " << depth << " " << offsetZ << " " << float(depth/BRICKSIZE) << " " << offsetZ/depth << " " << ratio << std::endl;	
+	float i = 0.0f;
+	float j = 0.0f;
+	float k = 0.0f;
+	for (unsigned int ii = 0; i < depth; i += stepDepth , ++ii)
 	{
-		for (unsigned int j = 0 , jj = 0; j < height; j += stepHeight, ++jj)
+		for (unsigned int jj = 0; j < height; j += stepHeight, ++jj)
 		{
-			for ( unsigned int k = 0 , kk = 0 ; k < width ; k += stepWidth , ++kk )
+			for ( unsigned int kk = 0 ; k < width ; k += stepWidth , ++kk )
 			{
-//				std::cout << (offsetX + k) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i) << " " << (offsetX + k - kk) + width * (offsetY + j - jj) + width * height * (offsetZ + i - ii) << " " << (int)level << std::endl;
-//				if (level != 0 && data[(offsetX + k) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i)] != 0)
-//				{
-//					std::cout << data[(offsetX + k) + width * (offsetY + j) + width * height * (offsetZ + i)] << " ";
-//				}
+
 				double tmp;
 			glm::dvec3 index = glm::dvec3((offsetX + k - (offsetX/width ) * stepWidth ) * ratio,
 						      (offsetY + j - (offsetY/height) * stepHeight) * ratio,
 						      (offsetZ + i - (offsetZ/depth ) * stepDepth ) * ratio);
 
-//				std::cout << index << std::endl;
-//				std::cout << "blub " << index << " " << std::floor(index) << " " << (1.0 - (index - std::floor(index))) << " " << (index - std::floor(index)) << std::endl;
-				float t  = getTrilinearInterpolation(index, data);
-//				std::cout << t;
-				brickData[kk][jj][ii] = t;
-				newBrickData[kk+ BRICKSIZE*jj + BRICKSIZE*BRICKSIZE*ii]=t;
-				
-//				brickData[kk][jj][ii]= data[(offsetX + k ) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i)]; 					
+				brickData[kk+ BRICKSIZE*jj + BRICKSIZE*BRICKSIZE*ii] = getTrilinearInterpolation(index, data);
+			
 			}
-//			std::cout << std::endl;
+			k = 0.0f;
 		}
-//		std::cout << i << " " << ii << " " << stepDepth << "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n\n";
+		j = 0.0f;
 	}
 	
-	mTree.push_back(new Brick(newBrickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2) , level));
+	mTree.push_back(new Brick(brickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2) , level));
 }
 
 
 
-void BrickTree::buildTree(unsigned char * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam)
+void BrickTree::buildTree(valueType * data, unsigned int width, unsigned int height , unsigned int depth , glm::vec3 cam)
 {
 	std::queue<BrickData> q;
 	unsigned char levelCounter=0;
@@ -208,7 +201,7 @@ void BrickTree::computeCut(glm::vec3 cam)
 {
 	
 	
-	std::priority_queue<int, std::vector<int>, CamDistanceComperator> pqueue((CamDistanceComperator(cam, &mTree)));
+	std::priority_queue<int, std::vector<int>, CamDistanceComperator> pqueue((CamDistanceComperator(cam, &mTree, mDimension)));
 	
 	pqueue.push(0); 
 	bool isLeaf = false;
@@ -418,10 +411,10 @@ float BrickTree::getError(int index, glm::vec3 cam)
   			
 		for(int i = 0; i < 8; ++i)
 	  	{
-	  		errorSumChild += diag * 0.5f / (diag * 0.5f + glm::length(cam - mTree[getChild(index, i)]->getCenter()/255.0f));
+	  		errorSumChild += diag * 0.5f / (diag * 0.5f + glm::length(cam - mTree[getChild(index, i)]->getCenter()/(float(mDimension.width)-1.0f)));
 	  	}
 
-	  	float error = diag / (diag + glm::length(cam - mTree[index]->getCenter()/255.0f));
+	  	float error = diag / (diag + glm::length(cam - mTree[index]->getCenter()/(float(mDimension.width)-1.0f)));
 
 		return (error - (errorSumChild/8.0f));
 	}
@@ -435,7 +428,7 @@ bool BrickTree::isSplittable(int index)
 
 }
 
-float BrickTree::getTrilinearInterpolation(glm::dvec3 point, unsigned char* data)
+float BrickTree::getTrilinearInterpolation(glm::dvec3 point, valueType* data)
 {
 //	inline float mix (float v0, float v1, float fr)
 //	{
@@ -463,6 +456,9 @@ float BrickTree::getTrilinearInterpolation(glm::dvec3 point, unsigned char* data
 	glm::ivec3 p110 = glm::ivec3(cx, cy, fz);
 	glm::ivec3 p111 = glm::ivec3(cx, cy, cz);
 
+int i = p000.x + mDimension.width * p000.y + mDimension.width * mDimension.height * p000.z;
+int j = p111.x + mDimension.width * p111.y + mDimension.width * mDimension.height * p111.z;
+//std::cout << i << " " << j << " " << mDimension.width << " " << mDimension.height << " " << p000.x << " " <<  p000.y << " " << p000.z << std::endl;
 	float v000 = data[p000.x + mDimension.width * p000.y + mDimension.width * mDimension.height * p000.z];
 	float v001 = data[p001.x + mDimension.width * p001.y + mDimension.width * mDimension.height * p001.z];
 	float v010 = data[p010.x + mDimension.width * p010.y + mDimension.width * mDimension.height * p010.z];

@@ -1,16 +1,18 @@
 #ifndef __TEXTURE_H__
 #define __TEXTURE_H__
 
-#include <iostream>
-#include "brick.h"
-#include "volumeLoader.h"
-
-
 #include <GL/glew.h>
 
+#include <iostream>
 #include <vector>
 #include <list>
 #include <unordered_map>
+
+
+#include "brick.h"
+#include "volumeLoader.h"
+#include "utility.h"
+
 
 
 class TextureAtlas

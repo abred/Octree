@@ -144,7 +144,7 @@ void OpenGLQtContext::initializeGL()
 //	glPointSize(5.0f);
 	//glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glDisable( GL_BLEND );
-
+	glDisable(GL_DEPTH_CLAMP);
 
 	glEnable( GL_DEPTH_TEST );
 	//glDepthFunc(GL_LESS);
@@ -166,11 +166,14 @@ void OpenGLQtContext::initializeGL()
 //
 void OpenGLQtContext::initScene()
 {
-	VolumeLoader* l = new VolumeLoader("res/Engine_w256_h256_d256_c1_b8.raw");
+	VolumeLoader* l = new VolumeLoader("res/coronal_w1024_h1024_d1080_c1_b16.raw");
+//	VolumeLoader* l = new VolumeLoader("res/foot_w256_h256_d256_c1_b8.raw");
 	l->loadData();
+	mDim = l->getDimension();
 	
 	mTree = new BrickTree(l->getData() , l->getDimension().width , l->getDimension().height , l->getDimension().depth, glm::vec3(0.0f, 0.0f, 3.0f));
 
+	delete l;
 
 	initShader();
 	initMatrices();
@@ -342,6 +345,20 @@ void OpenGLQtContext::initShader()
 	GLuint stepSizeLocation = glGetUniformLocation(mShaderID, "stepSize");
 	glUniform1f(stepSizeLocation , 0.01f );
 	
+	GLuint brickSizeLoc = glGetUniformLocation(mShaderID, "BRICKSIZE");
+	glUniform1i(brickSizeLoc, BRICKSIZE);
+	
+	GLuint valueRangeLoc = glGetUniformLocation(mShaderID, "VALUERANGE");
+	glUniform1f(valueRangeLoc, VALUERANGE);
+	
+	GLuint widthLoc = glGetUniformLocation(mShaderID, "width");
+	glUniform1f(widthLoc, mDim.width);
+	
+	GLuint heightLoc = glGetUniformLocation(mShaderID, "height");
+	glUniform1f(heightLoc, mDim.height);
+	
+	GLuint depthLoc = glGetUniformLocation(mShaderID, "depth");
+	glUniform1f(depthLoc, mDim.depth);
 	
 	
 }
@@ -366,7 +383,7 @@ void OpenGLQtContext::paintGL()
 	
 	++mFrameCounter;
 	glm::vec4 cam2 = glm::inverse(mViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	mTree->updateCut(glm::vec3(cam2.x, cam2.y, cam2.z));
+	mTree->updateCut(glm::vec3(cam.x, cam.y, cam.z));
 //	std::cout << "cam  " << cam.x << " " << cam.y << " " << cam.z << std::endl;
 //	std::cout << "cam2 " << cam2.x << " " << cam2.y << " " << cam2.z << std::endl;
 	

@@ -6,6 +6,10 @@
 #include <cstring>
 #include <fstream>
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "utility.h"
 
 struct Dimension
 {
@@ -31,7 +35,7 @@ class VolumeLoader
 		void loadData();
 		~VolumeLoader();
 		
-		unsigned char* getData();
+		valueType* getData();
 		Dimension getDimension();
 			
 		
@@ -40,7 +44,7 @@ class VolumeLoader
 	private:
 
 		std::string mFileName;
-		unsigned char* mData;
+		valueType* mData;
 
 		unsigned int width;
 		unsigned int height;
