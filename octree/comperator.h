@@ -3,6 +3,7 @@
 
 #include "brick.h"
 #include "glm/glm.hpp"
+#include "volumeLoader.h"
 
 
 #include <vector>

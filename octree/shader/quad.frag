@@ -55,12 +55,12 @@ void main()
 		ivec3 index = ivec3(floor(pos.x * 16.0), floor(pos.y * 16.0), floor(pos.z * 16.0));
 		uvec4 bla = texelFetch(indexTexture , index, 0);
 		
-		vec4 pos2 = vec4 ( fract(pos.x * bla.y) * 63.0, fract(pos.y * bla.y) * 63.0, fract(pos.z * bla.y) * 63.0, 64 * 64 * 64 * bla.x );
+		vec4 pos2 = vec4 ( fract(pos.x * bla.y) * 64.0, fract(pos.y * bla.y) * 64.0, fract(pos.z * bla.y) * 64.0, 64 * 64 * 64 * bla.x );
 
 		
 		float value = trilinearSample(pos2);
-		vec3 src = vec3((value/VALUERANGE), (value/VALUERANGE), (value/VALUERANGE));
-		float alpha = value/VALUERANGE;
+		vec3 src = vec3((value/65536.0), (value/65536.0), (value/65536.0));
+		float alpha = value/65536.0;
 		
 		dst.r = max(src.r , dst.r);
 		dst.g = max(src.g , dst.g);

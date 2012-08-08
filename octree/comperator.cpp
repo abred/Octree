@@ -37,7 +37,7 @@ bool CamDistanceComperator::hasChild(int index) const
 //-------------CamDistanceComperator2------------
 //-----------------------------------------------
 
-CamDistanceComperator2::CamDistanceComperator2(glm::vec3 &cam, std::vector<Brick*>* t, Dimension) : mCam(cam), mTree(t), mDim(dim)
+CamDistanceComperator2::CamDistanceComperator2(glm::vec3 &cam, std::vector<Brick*>* t, Dimension dim) : mCam(cam), mTree(t), mDim(dim)
 		{}
 
 bool CamDistanceComperator2::operator() (int &lhs, int &rhs) const
