@@ -98,9 +98,10 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 	int stepHeight= (int) (height / BRICKSIZE) ;
 	int stepDepth = (int) (depth / BRICKSIZE) ;
 	
-	double ratio = 256.0 / 248.0;
+	double ratio = 255.0 / (256.0 - 256.0/BRICKSIZE);
 //	std::cout << (int)level << " " << width << " " << height << " " << depth << " " << offsetX << " " << offsetY << " " << offsetZ << " " << stepWidth << " " << stepHeight << " " << stepDepth <<  std::endl;	
 	unsigned char (* brickData)[BRICKSIZE][BRICKSIZE] = new (unsigned char[BRICKSIZE][BRICKSIZE][BRICKSIZE]);
+	unsigned char* newBrickData = new unsigned char [BRICKSIZE*BRICKSIZE*BRICKSIZE];
 	
 	for (unsigned int i = 0, ii = 0; i < depth; i += stepDepth , ++ii)
 	{
@@ -114,10 +115,16 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 //					std::cout << data[(offsetX + k) + width * (offsetY + j) + width * height * (offsetZ + i)] << " ";
 //				}
 				double tmp;
-				double index = ((offsetX + k - offsetX/width ) + mDimension.width * (offsetY + j - offsetY/height) + mDimension.width * mDimension.height * (offsetZ + i - offsetZ/depth)) * ratio;
+			glm::dvec3 index = glm::dvec3((offsetX + k - (offsetX/width ) * stepWidth ) * ratio,
+						      (offsetY + j - (offsetY/height) * stepHeight) * ratio,
+						      (offsetZ + i - (offsetZ/depth ) * stepDepth ) * ratio);
 
+//				std::cout << index << std::endl;
 //				std::cout << "blub " << index << " " << std::floor(index) << " " << (1.0 - (index - std::floor(index))) << " " << (index - std::floor(index)) << std::endl;
-				brickData[kk][jj][ii] = data[int(std::floor(index))] * (1.0 - (index - std::floor(index))) + data[int(std::ceil(index))] * (index - std::floor(index));
+				float t  = getTrilinearInterpolation(index, data);
+//				std::cout << t;
+				brickData[kk][jj][ii] = t;
+				newBrickData[kk+ BRICKSIZE*jj + BRICKSIZE*BRICKSIZE*ii]=t;
 				
 //				brickData[kk][jj][ii]= data[(offsetX + k ) + mDimension.width * (offsetY + j) + mDimension.width * mDimension.height * (offsetZ + i)]; 					
 			}
@@ -126,7 +133,7 @@ void BrickTree::computeBrick(unsigned char * data , unsigned int width, unsigned
 //		std::cout << i << " " << ii << " " << stepDepth << "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n\n";
 	}
 	
-	mTree.push_back(new Brick(brickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2) , level));
+	mTree.push_back(new Brick(newBrickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2) , level));
 }
 
 
@@ -428,6 +435,67 @@ bool BrickTree::isSplittable(int index)
 
 }
 
+float BrickTree::getTrilinearInterpolation(glm::dvec3 point, unsigned char* data)
+{
+//	inline float mix (float v0, float v1, float fr)
+//	{
+//		return v0 * (1.0f - fr) + v1 * fr;
+//	};
+//	
+//	inline float fract(float v)
+//	{
+//		return v - std::floor(v);
+//	};
+	
+	int fx = int(std::floor(point.x));
+	int fy = int(std::floor(point.y));
+	int fz = int(std::floor(point.z));
+	int cx = int(std::ceil (point.x));
+	int cy = int(std::ceil (point.y));
+	int cz = int(std::ceil (point.z));
+	
+	glm::ivec3 p000 = glm::ivec3(fx, fy, fz);
+	glm::ivec3 p001 = glm::ivec3(fx, fy, cz);
+	glm::ivec3 p010 = glm::ivec3(fx, cy, fz);
+	glm::ivec3 p011 = glm::ivec3(fx, cy, cz);
+	glm::ivec3 p100 = glm::ivec3(cx, fy, fz);
+	glm::ivec3 p101 = glm::ivec3(cx, fy, cz);
+	glm::ivec3 p110 = glm::ivec3(cx, cy, fz);
+	glm::ivec3 p111 = glm::ivec3(cx, cy, cz);
+
+	float v000 = data[p000.x + mDimension.width * p000.y + mDimension.width * mDimension.height * p000.z];
+	float v001 = data[p001.x + mDimension.width * p001.y + mDimension.width * mDimension.height * p001.z];
+	float v010 = data[p010.x + mDimension.width * p010.y + mDimension.width * mDimension.height * p010.z];
+	float v011 = data[p011.x + mDimension.width * p011.y + mDimension.width * mDimension.height * p011.z];
+	float v100 = data[p100.x + mDimension.width * p100.y + mDimension.width * mDimension.height * p100.z];
+	float v101 = data[p101.x + mDimension.width * p101.y + mDimension.width * mDimension.height * p101.z];
+	float v110 = data[p110.x + mDimension.width * p110.y + mDimension.width * mDimension.height * p110.z];
+	float v111 = data[p111.x + mDimension.width * p111.y + mDimension.width * mDimension.height * p111.z];
+	
+//	std::cout << v000 << " " << v001 << " " << v010 << " " << v011 << " " << v100 << " " << v101 << " " << v110 << " " << v111 << "\n";
+
+
+	// 4 linear
+	float l00 = glm::mix(v000, v100, glm::fract(point.x));
+	float l01 = glm::mix(v001, v101, glm::fract(point.x));
+	float l10 = glm::mix(v010, v110, glm::fract(point.x));
+	float l11 = glm::mix(v011, v111, glm::fract(point.x));	
+	
+//	std::cout << l00 << " " << l01 << " " << l10 << " " << l11 << std::endl;
+
+
+	// 2 bilinear
+	float b0 = glm::mix(l00, l10, glm::fract(point.y));
+	float b1 = glm::mix(l01, l11, glm::fract(point.y));
+	
+//	std::cout << b0 << " " << b1 << std::endl;
+
+
+	// 1 trilinear
+	return glm::mix (b0, b1, glm::fract(point.z));
+}
+
+
 
 //-----------------------------------------------
 //------------------Private Debug----------------
@@ -475,3 +543,22 @@ BrickData::BrickData()
 	{}
 BrickData::BrickData(BrickData const& bd) : width(bd.width), height(bd.height), depth(bd.depth), offsetX(bd.offsetX), offsetY(bd.offsetY), offsetZ(bd.offsetZ) ,level(bd.level)
 	{}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+std::ostream& operator<<(std::ostream& os, glm::vec3 v)
+{
+	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+	return os; 
+};
+std::ostream& operator<<(std::ostream& os, glm::dvec3 v)
+{
+	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+	return os; 
+};

@@ -50,8 +50,8 @@ TextureAtlas::TextureAtlas( unsigned int volumeWidth ,unsigned int volumeHeight,
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
 	
-	glPixelStorei(GL_UNPACK_ALIGNMENT , 1);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16UI , volumeWidth / BRICKSIZE , volumeHeight / BRICKSIZE ,volumeDepth / BRICKSIZE ,0 , GL_RGBA_INTEGER , GL_UNSIGNED_INT , nullptr );
+//	glPixelStorei(GL_UNPACK_ALIGNMENT , 1);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32UI , volumeWidth / BRICKSIZE , volumeHeight / BRICKSIZE ,volumeDepth / BRICKSIZE ,0 , GL_RGBA_INTEGER , GL_UNSIGNED_INT , nullptr );
 	
 //	glGetTexLevelParameteriv(GL_TEXTURE_3D, 0, GL_TEXTURE_WIDTH, &width); 
 //	 std::cout << width;/* Can't use that texture */ 
@@ -81,7 +81,7 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 //		std::cout << tmp << " " << tmp2 << std::endl;
 //		glTexSubImage3D(GL_TEXTURE_3D , 0 , tmp2 , tmp * BRICKSIZE , 0 ,BRICKSIZE , BRICKSIZE , BRICKSIZE, GL_RED_INTEGER , GL_UNSIGNED_BYTE , (*mTree)[*i]->getData());
 
-		glBufferSubData(GL_TEXTURE_BUFFER , counter * BRICKSIZE * BRICKSIZE * BRICKSIZE , BRICKSIZE * BRICKSIZE * BRICKSIZE , (*mTree)[*i]->getData());
+		glBufferSubData(GL_TEXTURE_BUFFER , counter * BRICKSIZE * BRICKSIZE * BRICKSIZE , BRICKSIZE * BRICKSIZE * BRICKSIZE , (*mTree)[*i]->getNewData());
 
 //		for (unsigned int l = 0; l < 64; l += 1)
 //		{
@@ -94,7 +94,8 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 //				}
 //			}
 //		}	
-		mCutMap.insert({*i, counter++});
+		mCutMap.insert({*i, counter});
+		++counter;
 	}
 	
 	glTexBuffer(GL_TEXTURE_BUFFER , GL_R8UI , mTexAtlasBuffer);
@@ -114,15 +115,15 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 		levelOffsetZ = (*mTree)[*i]->getCenter().z - 0.5*levelDepth;
 		
 		//std::cout << levelOffsetX/BRICKSIZE << " " << levelOffsetY/BRICKSIZE << " " << levelOffsetZ/BRICKSIZE << " " << levelWidth/BRICKSIZE << " " << levelHeight/BRICKSIZE << " " << levelDepth/BRICKSIZE << " " << (int) (*mTree)[*i]->getLevel() << std::endl;
-		std::vector<glm::uvec4> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec4(counter++, (GLuint)levelWidth/BRICKSIZE, (GLuint)levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE) );
+		std::vector<glm::uvec4> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec4(counter++, (GLuint)pow(2.0f, float((*mTree)[*i]->getLevel())), (GLuint)levelHeight, (GLuint)levelDepth) );
 		std::cout << tmp[0].x << " " << tmp[0].y << " " << tmp[0].z << " " << tmp[0].w << std::endl;
 		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RGBA_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
 	}
 	
-	for (auto i : mCutMap)
-	{
-//		std::cout << i.first << " " << i.second << std::endl;			
-	}
+//	for (auto i : mCutMap)
+//	{
+////		std::cout << i.first << " " << i.second << std::endl;			
+//	}
 
 }
 
@@ -151,7 +152,7 @@ void TextureAtlas::updateTextures(std::list<int> const &addBricks , std::list<in
 		levelOffsetZ = (*mTree)[*i]->getCenter().z - 0.5*levelDepth;
 		
 //		std::cout << slot << " " << levelOffsetX/BRICKSIZE << " " << levelOffsetY/BRICKSIZE << " " << levelOffsetZ/BRICKSIZE << " " << levelWidth/BRICKSIZE << " " << levelHeight/BRICKSIZE << " " << levelDepth/BRICKSIZE << " " << (int) (*mTree)[*i]->getLevel() << std::endl;
-		std::vector<glm::uvec4> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec4(slot, (GLuint)levelWidth/BRICKSIZE, (GLuint)levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE) );
+		std::vector<glm::uvec4> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec4(slot, (GLuint)levelWidth, (GLuint)levelHeight, (GLuint)levelDepth) );
 //		std::cout << tmp[0].x << " " << tmp[0].y << " " << tmp[0].z << " " << tmp[0].w << std::endl;
 		glActiveTexture(GL_TEXTURE1);
 		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RGBA_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
@@ -176,7 +177,7 @@ void TextureAtlas::updateTextures(std::list<int> const &addBricks , std::list<in
 				
 //		std::cout << tmp1 << " " << tmp2 << std::endl;
 //		glTexSubImage3D(GL_TEXTURE_3D , 0 , tmp2 , tmp1 *BRICKSIZE , 0 ,BRICKSIZE , BRICKSIZE , BRICKSIZE, GL_RED_INTEGER , GL_UNSIGNED_BYTE , (*mTree)[*i]->getData() );
-		glBufferSubData(GL_TEXTURE_BUFFER , slot * BRICKSIZE * BRICKSIZE * BRICKSIZE , BRICKSIZE * BRICKSIZE * BRICKSIZE , (*mTree)[*i]->getData());
+		glBufferSubData(GL_TEXTURE_BUFFER , slot * BRICKSIZE * BRICKSIZE * BRICKSIZE , BRICKSIZE * BRICKSIZE * BRICKSIZE , (*mTree)[*i]->getNewData());
 		glTexBuffer(GL_TEXTURE_BUFFER , GL_R8UI , mTexAtlasBuffer);
 	}
 		

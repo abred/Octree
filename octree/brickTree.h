@@ -68,6 +68,8 @@ class BrickTree
 		int 	getParent(int index);
 		int 	getLevel(int index);
 		float 	getError(int, glm::vec3 cam);
+		
+		float	getTrilinearInterpolation(glm::dvec3 point, unsigned char*);
 
 		bool 	isSplittable(int);
 
@@ -83,6 +85,10 @@ class BrickTree
 		
 
 };
+
+
+std::ostream& operator<<(std::ostream& os, glm::vec3 v);
+std::ostream& operator<<(std::ostream& os, glm::dvec3 v);
 
 
 #endif /* __BRICKTREE_H__ */

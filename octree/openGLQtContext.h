@@ -96,7 +96,7 @@ class OpenGLQtContext : public QGLWidget
 
 			int 		mFrameCounter;
 			
-			glm::vec3	mLastPos = glm::vec3(1.0f);
+			glm::vec3	mLastPos;// = glm::vec3(1.0f);
 			GLuint		mWidth;
 			GLuint		mHeight;
 
