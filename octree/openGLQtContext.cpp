@@ -268,11 +268,11 @@ void OpenGLQtContext::initScene()
 //
 void OpenGLQtContext::initMatrices()
 {
-	mTranslMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, -0.5f));
-	mModelMatrix = glm::mat4(1.0f);
+	mModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, -0.5f));
+//	mModelMatrix = glm::mat4(1.0f);
 //	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0));
 	mViewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	mModelViewMatrix = mViewMatrix * mModelMatrix * mTranslMatrix;
+	mModelViewMatrix = mViewMatrix * mModelMatrix ;
 	mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
 	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 1000.f);
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
@@ -484,7 +484,7 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 					std::cout << "QGL: Key nicht belegt" << std::endl;
 	}
 
-		mModelViewMatrix = mViewMatrix * mModelMatrix * mTranslMatrix;
+		mModelViewMatrix = mViewMatrix * mModelMatrix ;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 		mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
