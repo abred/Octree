@@ -115,7 +115,7 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 		
 		//std::cout << levelOffsetX/BRICKSIZE << " " << levelOffsetY/BRICKSIZE << " " << levelOffsetZ/BRICKSIZE << " " << levelWidth/BRICKSIZE << " " << levelHeight/BRICKSIZE << " " << levelDepth/BRICKSIZE << " " << (int) (*mTree)[*i]->getLevel() << std::endl;
 		std::vector<glm::uvec4> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec4(counter++, (GLuint)levelWidth/BRICKSIZE, (GLuint)levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE) );
-//		std::cout << tmp[0].x << " " << tmp[0].y << " " << tmp[0].z << " " << tmp[0].w << std::endl;
+		std::cout << tmp[0].x << " " << tmp[0].y << " " << tmp[0].z << " " << tmp[0].w << std::endl;
 		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RGBA_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
 	}
 	

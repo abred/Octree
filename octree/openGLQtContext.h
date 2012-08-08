@@ -82,7 +82,7 @@ class OpenGLQtContext : public QGLWidget
 			glm::mat4	mProjectionMatrix;
 			glm::mat4	mMVPMatrix;
 			glm::mat4	mMVPInverseMatrix;
-			glm::mat4	mTranslMatrix;
+
 
 			GLuint		mShaderID;
 

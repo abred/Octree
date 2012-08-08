@@ -269,8 +269,6 @@ void OpenGLQtContext::initScene()
 void OpenGLQtContext::initMatrices()
 {
 	mModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, -0.5f));
-//	mModelMatrix = glm::mat4(1.0f);
-//	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0));
 	mViewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	mModelViewMatrix = mViewMatrix * mModelMatrix ;
 	mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
@@ -604,7 +602,7 @@ void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
 //	}
 
-		mModelViewMatrix = mViewMatrix * mModelMatrix * mTranslMatrix;
+		mModelViewMatrix = mViewMatrix * mModelMatrix ;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 		mMVInverseMatrix  = glm::inverse(mModelViewMatrix);

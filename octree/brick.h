@@ -1,9 +1,9 @@
 #ifndef __BRICK_H__
 #define __BRICK_H__
 
-#define BRICKSIZE 128
-#define CUTSIZE 128
-#define MAXREPLACEMENTS 512
+#define BRICKSIZE 8
+#define CUTSIZE 4096
+#define MAXREPLACEMENTS 128
 
 #include <iostream>
 #include "glm/glm.hpp"
