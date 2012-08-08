@@ -29,12 +29,12 @@ char* readTextFile(std::string fileName)
 // from g-truc ogl-samples
 //
 void GLAPIENTRY debugOutput (GLenum source,
-                             GLenum type,
-                             GLuint id,
-                             GLenum severity, 
-                             GLsizei length, 
-                             const GLchar* message,
-                             GLvoid* userParam)
+							 GLenum type,
+							 GLuint id,
+							 GLenum severity, 
+							 GLsizei length, 
+							 const GLchar* message,
+							 GLvoid* userParam)
 {
 	char debSource[32], debType[32], debSev[32];
 	if(source == GL_DEBUG_SOURCE_API_ARB)
@@ -90,9 +90,9 @@ OpenGLQtContext::OpenGLQtContext(QGLFormat* context, QWidget *parent) :
 
 	mFrameCounter = 0;
 	mTimer = new QTimer(this);
-     	connect(mTimer, SIGNAL(timeout()), this, SLOT(fps()));
-     	mTimer->start(1000);
-    
+	 	connect(mTimer, SIGNAL(timeout()), this, SLOT(fps()));
+	 	mTimer->start(1000);
+	
 }
 //
 
@@ -268,10 +268,11 @@ void OpenGLQtContext::initScene()
 //
 void OpenGLQtContext::initMatrices()
 {
+	mTranslMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, -0.5f));
 	mModelMatrix = glm::mat4(1.0f);
 //	mViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0));
 	mViewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	mModelViewMatrix = mViewMatrix * mModelMatrix;
+	mModelViewMatrix = mViewMatrix * mModelMatrix * mTranslMatrix;
 	mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
 	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 1000.f);
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
@@ -368,8 +369,8 @@ void OpenGLQtContext::paintGL()
 	++mFrameCounter;
 	glm::vec4 cam2 = glm::inverse(mViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	mTree->updateCut(glm::vec3(cam2.x, cam2.y, cam2.z));
-	std::cout << "cam  " << cam.x << " " << cam.y << " " << cam.z << std::endl;
-	std::cout << "cam2 " << cam2.x << " " << cam2.y << " " << cam2.z << std::endl;
+//	std::cout << "cam  " << cam.x << " " << cam.y << " " << cam.z << std::endl;
+//	std::cout << "cam2 " << cam2.x << " " << cam2.y << " " << cam2.z << std::endl;
 	
 	
 //	glUseProgram(mShaderID);
@@ -406,6 +407,8 @@ void OpenGLQtContext::paintGL()
 void OpenGLQtContext::resizeGL(int width, int height)
 {
 //	std::cout << "pblub";
+	mWidth = width;
+	mHeight = height;
 	glViewport(0, 0, width, height);
 	resize(width, height);
 	mProjectionMatrix = glm::perspective(60.0f, float(width) / float(height), 0.1f, 1000.f);
@@ -481,7 +484,7 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 					std::cout << "QGL: Key nicht belegt" << std::endl;
 	}
 
-		mModelViewMatrix = mViewMatrix * mModelMatrix;
+		mModelViewMatrix = mViewMatrix * mModelMatrix * mTranslMatrix;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 		mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
@@ -509,6 +512,17 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 void OpenGLQtContext::mousePressEvent(QMouseEvent *event)
 {
 	//lastPos_ = event->pos();
+	glm::vec3 v(0.0f);
+	float d;
+	v.x = (2.0f * event->x() - mWidth) / float(mWidth);
+	v.y = (mHeight - 2.0 * event->y()) / float(mHeight);
+	// v.z = 0.0f;
+	d = glm::length(v);
+	d = d < 1.0f ? d : 1.0;
+	v.z = std::sqrt(1.001 - d*d);
+	v = glm::normalize(v);
+std::cout << "blb";
+	mLastPos = v;
 }
 //
 
@@ -520,28 +534,64 @@ void OpenGLQtContext::mousePressEvent(QMouseEvent *event)
 //
 void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 {
-	int dx = event->x() - mLastPos.x();
-	int dy = event->y() - mLastPos.y();
+//	int dx = event->x() - mLastPos.x();
+//	int dy = event->y() - mLastPos.y();
 
 
-	mLastPos = event->pos();
-
+//	mLastPos = event->pos();
 
 
 	if (event->buttons() & Qt::LeftButton)
 	{
-		if (dx < 0)
-		mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
-		else
-		mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::vec3 v(0.0f);
+		float d;
+		v.x = (2.0f * event->x() - mWidth) / float(mWidth);
+		v.y = (mHeight - 2.0 * event->y()) / float(mHeight);
+		// v.z = 0.0f;
+		d = glm::length(v);
+		d = d < 1.0f ? d : 1.0;
+		v.z = std::sqrt(1.001 - d*d);
+		v = glm::normalize(v);
 
-		if (dy < 0)
-			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
-		else
-			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
+		glm::vec3 curPos = v;
+		
+		glm::vec3 dir = curPos - mLastPos;
+		float velo = glm::length(dir);
+		if (velo > 0.0001f)
+		{
+			glm::vec3 rotAxis = glm::cross(mLastPos, curPos);
+			float rotAngle = velo * 50.0f;
+			
+			mModelMatrix = glm::rotate(glm::mat4(1.0f), rotAngle, rotAxis) * mModelMatrix;
+		}
+		mLastPos = curPos;
 	}
-	else if (event->buttons() & Qt::RightButton)
-	{
+
+//	if (event->buttons() & Qt::LeftButton)
+//	{
+//		if (dx < 0)
+//		{
+//			glm::vec4 tmp = glm::inverse(mModelMatrix) * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+//			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(tmp.x, tmp.y, tmp.z));
+//		}
+//		else
+//		{
+//			glm::vec4 tmp = glm::inverse(mModelMatrix) * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+//			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(tmp.x, tmp.y, tmp.z));
+//		}
+//		if (dy < 0)
+//		{
+//			glm::vec4 tmp = glm::inverse(mModelMatrix) * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+//			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(tmp.x, tmp.y, tmp.z));
+//		}
+//		else
+//		{
+//			glm::vec4 tmp = glm::inverse(mModelMatrix) * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+//			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(tmp.x, tmp.y, tmp.z));
+//		}
+//	}
+//	else if (event->buttons() & Qt::RightButton)
+//	{
 		// if (dx < 0)
 		//
 		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -552,9 +602,9 @@ void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
 		// else
 		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
-	}
+//	}
 
-		mModelViewMatrix = mViewMatrix * mModelMatrix;
+		mModelViewMatrix = mViewMatrix * mModelMatrix * mTranslMatrix;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 		mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
@@ -568,6 +618,8 @@ void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 		glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
 		GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVInverse");
 		glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
+		
+		
 		update();
 }
 //

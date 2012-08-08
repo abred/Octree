@@ -13,7 +13,7 @@
 	//	   B.yx = A.wy;
 	//     B = A.xx;
 	//Vorsicht! Kann Namenskonflikte mit anderen Headern/Libraries erzeugen
-//#define GLM_SWIZZLE
+#define GLM_SWIZZLE
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 //
@@ -82,6 +82,7 @@ class OpenGLQtContext : public QGLWidget
 			glm::mat4	mProjectionMatrix;
 			glm::mat4	mMVPMatrix;
 			glm::mat4	mMVPInverseMatrix;
+			glm::mat4	mTranslMatrix;
 
 			GLuint		mShaderID;
 
@@ -95,7 +96,9 @@ class OpenGLQtContext : public QGLWidget
 
 			int 		mFrameCounter;
 			
-			QPoint		mLastPos;
+			glm::vec3	mLastPos = glm::vec3(1.0f);
+			GLuint		mWidth;
+			GLuint		mHeight;
 
 
 	public slots:
