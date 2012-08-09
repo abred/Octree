@@ -15,7 +15,7 @@ TextureAtlas::TextureAtlas( unsigned int volumeWidth ,unsigned int volumeHeight,
 	glGenBuffers(1, &mTexAtlasBuffer );
 	
 	glBindBuffer(GL_TEXTURE_BUFFER , mTexAtlasBuffer);
-	glBufferData(GL_TEXTURE_BUFFER , CUTSIZE * BRICKSIZE * BRICKSIZE * BRICKSIZE *sizeof(unsigned char) , nullptr , GL_DYNAMIC_COPY);
+	glBufferData(GL_TEXTURE_BUFFER , CUTSIZE * BRICKSIZE * BRICKSIZE * BRICKSIZE * sizeof(valueType) , nullptr , GL_DYNAMIC_COPY);
 
 	
 	glActiveTexture(GL_TEXTURE1);
@@ -41,7 +41,7 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 	unsigned int counter = 0;
 	for (auto i = firstCut.begin(); i != firstCut.end(); ++i)
 	{	
-		glBufferSubData(GL_TEXTURE_BUFFER , counter * BRICKSIZE * BRICKSIZE * BRICKSIZE , BRICKSIZE * BRICKSIZE * BRICKSIZE , (*mTree)[*i]->getData());
+		glBufferSubData(GL_TEXTURE_BUFFER , counter * BRICKSIZE * BRICKSIZE * BRICKSIZE * sizeof(valueType) , BRICKSIZE * BRICKSIZE * BRICKSIZE * sizeof(valueType), (*mTree)[*i]->getData());
 
 		mCutMap.insert({*i, counter});
 		++counter;
@@ -64,9 +64,11 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 		levelOffsetZ = (*mTree)[*i]->getCenter().z - 0.5*levelDepth;
 
 		std::vector<glm::uvec2> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec2(counter++, (GLuint)pow(2.0f, float((*mTree)[*i]->getLevel()))) );
-		std::cout << tmp[0].x << " " << tmp[0].y << " " << std::endl;
+//		std::cout << tmp[0].x << " " << tmp[0].y << " " << std::endl;
 		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RG_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
 	}
+	
+	std::cout << GL_R16UI << " " << GL_R8UI << " dddd " << TEXTURETYPE << std::endl;
 	
 
 }
@@ -105,7 +107,7 @@ void TextureAtlas::updateTextures(std::list<int> const &addBricks , std::list<in
 		glBindTexture(GL_TEXTURE_BUFFER , mTextureAtlas);
 		glBindBuffer(GL_TEXTURE_BUFFER , mTexAtlasBuffer);
 
-		glBufferSubData(GL_TEXTURE_BUFFER , slot * BRICKSIZE * BRICKSIZE * BRICKSIZE , BRICKSIZE * BRICKSIZE * BRICKSIZE , (*mTree)[*i]->getData());
+		glBufferSubData(GL_TEXTURE_BUFFER , slot * BRICKSIZE * BRICKSIZE * BRICKSIZE * sizeof(valueType), BRICKSIZE * BRICKSIZE * BRICKSIZE * sizeof(valueType) , (*mTree)[*i]->getData());
 		glTexBuffer(GL_TEXTURE_BUFFER , TEXTURETYPE , mTexAtlasBuffer);
 	}
 		

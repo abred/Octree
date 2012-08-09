@@ -52,15 +52,15 @@ void main()
 	vec3 dst = vec3(0.0);
 	while (dist < maxDist)
 	{
-		ivec3 index = ivec3(floor(pos.x * 16.0), floor(pos.y * 16.0), floor(pos.z * 16.0));
+		ivec3 index = ivec3(floor(pos.x * width/float(BRICKSIZE)), floor(pos.y * height/float(BRICKSIZE)), floor(pos.z * depth/float(BRICKSIZE)));
 		uvec4 bla = texelFetch(indexTexture , index, 0);
 		
-		vec4 pos2 = vec4 ( fract(pos.x * bla.y) * 64.0, fract(pos.y * bla.y) * 64.0, fract(pos.z * bla.y) * 64.0, 64 * 64 * 64 * bla.x );
+		vec4 pos2 = vec4 ( fract(pos.x * bla.y) * (float(BRICKSIZE)-1.0), fract(pos.y * bla.y) * (float(BRICKSIZE)-1.0), fract(pos.z * bla.y) * (float(BRICKSIZE)-1.0), BRICKSIZE * BRICKSIZE * BRICKSIZE * bla.x );
 
 		
 		float value = trilinearSample(pos2);
-		vec3 src = vec3((value/65536.0), (value/65536.0), (value/65536.0));
-		float alpha = value/65536.0;
+		vec3 src = vec3((value/VALUERANGE), (value/VALUERANGE), (value/VALUERANGE));
+		float alpha = value/VALUERANGE;
 		
 		dst.r = max(src.r , dst.r);
 		dst.g = max(src.g , dst.g);
@@ -168,14 +168,14 @@ float trilinearSample(in vec4 pos)
 	ivec3 p110 = ivec3(cx, cy, fz);
 	ivec3 p111 = ivec3(cx, cy, cz);
 
-	float v000 = (texelFetch(textureAtlas, int(pos.w) + p000.x + 64 * p000.y + 64 * 64 * p000.z));
-	float v001 = (texelFetch(textureAtlas, int(pos.w) + p001.x + 64 * p001.y + 64 * 64 * p001.z));
-	float v010 = (texelFetch(textureAtlas, int(pos.w) + p010.x + 64 * p010.y + 64 * 64 * p010.z));
-	float v011 = (texelFetch(textureAtlas, int(pos.w) + p011.x + 64 * p011.y + 64 * 64 * p011.z));
-	float v100 = (texelFetch(textureAtlas, int(pos.w) + p100.x + 64 * p100.y + 64 * 64 * p100.z));
-	float v101 = (texelFetch(textureAtlas, int(pos.w) + p101.x + 64 * p101.y + 64 * 64 * p101.z));
-	float v110 = (texelFetch(textureAtlas, int(pos.w) + p110.x + 64 * p110.y + 64 * 64 * p110.z));
-	float v111 = (texelFetch(textureAtlas, int(pos.w) + p111.x + 64 * p111.y + 64 * 64 * p111.z));
+	float v000 = (texelFetch(textureAtlas, int(pos.w) + p000.x + BRICKSIZE * p000.y + BRICKSIZE * BRICKSIZE * p000.z));
+	float v001 = (texelFetch(textureAtlas, int(pos.w) + p001.x + BRICKSIZE * p001.y + BRICKSIZE * BRICKSIZE * p001.z));
+	float v010 = (texelFetch(textureAtlas, int(pos.w) + p010.x + BRICKSIZE * p010.y + BRICKSIZE * BRICKSIZE * p010.z));
+	float v011 = (texelFetch(textureAtlas, int(pos.w) + p011.x + BRICKSIZE * p011.y + BRICKSIZE * BRICKSIZE * p011.z));
+	float v100 = (texelFetch(textureAtlas, int(pos.w) + p100.x + BRICKSIZE * p100.y + BRICKSIZE * BRICKSIZE * p100.z));
+	float v101 = (texelFetch(textureAtlas, int(pos.w) + p101.x + BRICKSIZE * p101.y + BRICKSIZE * BRICKSIZE * p101.z));
+	float v110 = (texelFetch(textureAtlas, int(pos.w) + p110.x + BRICKSIZE * p110.y + BRICKSIZE * BRICKSIZE * p110.z));
+	float v111 = (texelFetch(textureAtlas, int(pos.w) + p111.x + BRICKSIZE * p111.y + BRICKSIZE * BRICKSIZE * p111.z));
 
 	// 4 linear
 	float l00 = mix(v000, v100, fract(pos.x));

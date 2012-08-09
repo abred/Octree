@@ -536,7 +536,7 @@ void OpenGLQtContext::mousePressEvent(QMouseEvent *event)
 	d = d < 1.0f ? d : 1.0;
 	v.z = std::sqrt(1.001 - d*d);
 	v = glm::normalize(v);
-std::cout << "blb";
+
 	mLastPos = v;
 }
 //

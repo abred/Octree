@@ -14,6 +14,10 @@
 #################
 *~
 
+# images #
+############
+*.raw
+
 
 # folder #
 ############
@@ -21,6 +25,7 @@ bin
 ipch
 GeneratedFiles
 repo
+res
 
 # other Visual Studio generated stuff #
 ######################################

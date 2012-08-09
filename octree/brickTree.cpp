@@ -26,7 +26,7 @@ BrickTree::~BrickTree()
 
 void BrickTree::updateCut(glm::vec3 cam)
 {
-
+	std::cout << "Update Cut..." << std::endl;
 //	mCollapsibleNodes.sort(CamDistanceComperator2(cam , &mTree, mDimension));
 	mCollapsibleNodes.sort(SplitComperator(cam , &mTree, mDimension));
 

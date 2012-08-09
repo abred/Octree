@@ -10,7 +10,7 @@
 #include <queue>
 #include <list>
 
-#define ROOTDIAG 8192.0f
+#define ROOTDIAG 66536.0f
 
 
 //---------------------------------------CamDistanceComperator---------------------------------------------------------
