@@ -1,13 +1,16 @@
 QT        += opengl
-CONFIG += console
+CONFIG += console debug_and_release
 
 
 TEMPLATE = app
-TARGET = 
+Debug:TARGET = Octree.debug
+Debug:DEFINES += DEBUG
+Release:TARGET = Octree
 DEPENDPATH += .
 INCLUDEPATH += . include/ 
 
-QMAKE_CXXFLAGS += -std=c++0x -g -O0
+QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS_RELEASE -= -g
 
 LIBS =  -L/home/mahu/qt/lib  -L/usr/lib/ -L/usr/local/lib -L../lib -lGL -lGLEW
 

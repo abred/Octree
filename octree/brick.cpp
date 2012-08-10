@@ -2,10 +2,11 @@
 
 
 
-Brick::Brick( valueType * data,  glm::vec3 c , unsigned char level):
+Brick::Brick( valueType * data,  glm::vec3 c , unsigned char level, bool e):
 	mData(data),
 	mCenter(c),
-	mLevel(level)
+	mLevel(level),
+	mEmpty(e)
 {}
 
 
@@ -30,4 +31,9 @@ glm::vec3 Brick::getCenter() const
 unsigned char Brick::getLevel()
 {
 	return mLevel;	
+}
+
+bool Brick::isEmpty()
+{
+	return mEmpty;
 }

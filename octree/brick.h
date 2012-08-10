@@ -11,18 +11,20 @@
 class Brick
 {
 	public:
-		Brick (valueType * brickData, glm::vec3 c , unsigned char level);
+		Brick (valueType * brickData, glm::vec3 c , unsigned char level, bool empty);
 		~Brick ();
 		
 		
 		valueType *getData();
 		glm::vec3 getCenter() const;
 		unsigned char getLevel();
+		bool isEmpty();
 
 	private:
 		valueType* mData;
 		glm::vec3 mCenter;
 		unsigned char mLevel;
+		bool mEmpty;
 };
 
 	

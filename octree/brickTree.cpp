@@ -26,7 +26,7 @@ BrickTree::~BrickTree()
 
 void BrickTree::updateCut(glm::vec3 cam)
 {
-	std::cout << "Update Cut..." << std::endl;
+//	std::cout << "Update Cut..." << std::endl;
 //	mCollapsibleNodes.sort(CamDistanceComperator2(cam , &mTree, mDimension));
 	mCollapsibleNodes.sort(SplitComperator(cam , &mTree, mDimension));
 
@@ -44,7 +44,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 
 		while(!mSplittableNodes.empty() && mCut.size() <= CUTSIZE-7 && r < MAXREPLACEMENTS)
 		{
-//			std::cout<< "SPLIT!"<<std::endl;
+			std::cout<< "SPLIT!"<<std::endl;
 			split(mSplittableNodes.front());			
 //			debugPrint(cam);
 			r += 8;
@@ -52,7 +52,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 
 		if(!mCollapsibleNodes.empty() && !mSplittableNodes.empty() && 	(getError(mSplittableNodes.front(), cam) < getError(mCollapsibleNodes.front(), cam)) && r < MAXREPLACEMENTS)
 		{
-//			std::cout<< "COLLAPSE"<<std::endl;
+			std::cout<< "COLLAPSE"<<std::endl;
 			collapse(mCollapsibleNodes.front());			
 //			debugPrint(cam);
 			r += 1;
@@ -106,6 +106,8 @@ void BrickTree::computeBrick(valueType * data , unsigned int width, unsigned int
 	float i = 0.0f;
 	float j = 0.0f;
 	float k = 0.0f;
+	
+	bool isEmpty = true;
 	for (unsigned int ii = 0; i < depth; i += stepDepth , ++ii)
 	{
 		for (unsigned int jj = 0; j < height; j += stepHeight, ++jj)
@@ -118,7 +120,12 @@ void BrickTree::computeBrick(valueType * data , unsigned int width, unsigned int
 						      (offsetY + j - (offsetY/height) * stepHeight) * ratio,
 						      (offsetZ + i - (offsetZ/depth ) * stepDepth ) * ratio);
 
-				brickData[kk+ BRICKSIZE*jj + BRICKSIZE*BRICKSIZE*ii] = getTrilinearInterpolation(index, data);
+				float t = getTrilinearInterpolation(index, data);
+				brickData[kk+ BRICKSIZE*jj + BRICKSIZE*BRICKSIZE*ii] = t;
+				if (t >= 0.01f)
+				{
+					isEmpty = false;
+				}
 			
 			}
 			k = 0.0f;
@@ -126,7 +133,7 @@ void BrickTree::computeBrick(valueType * data , unsigned int width, unsigned int
 		j = 0.0f;
 	}
 	
-	mTree.push_back(new Brick(brickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2) , level));
+	mTree.push_back(new Brick(brickData , glm::vec3(offsetX + width/2 , offsetY + height/2 , offsetZ + depth/2) , level, isEmpty));
 }
 
 

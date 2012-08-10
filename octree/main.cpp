@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 
 #include <iostream>
+#include <stdexcept>
 
 
 #include <QApplication>
@@ -19,10 +20,21 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	MainWindow mw;
-	mw.resize(800, 600);
-	mw.move(200,200);
-	//mw.showFullScreen();
-	mw.show();
-	return a.exec();
+	try
+	{
+		MainWindow mw(argv[1]);
+		mw.resize(800, 600);
+		mw.move(200,200);
+		//mw.showFullScreen();
+		mw.show();
+		return a.exec();
+	}
+	catch(std::logic_error& e)
+	{
+		std::cerr << "exception: " << e.what() << " (Did you forget to provide a filename?)" << std::endl;
+		exit(1);
+	}
+	
+	return 0;
+	
 }

@@ -52,21 +52,21 @@ class OpenGLQtContext : public QGLWidget
 	
 	public:
 
-							OpenGLQtContext(QGLFormat *context, QWidget *parent = 0);
-							~OpenGLQtContext();
+						OpenGLQtContext(std::string const& filename, QGLFormat *context, QWidget *parent = 0);
+						~OpenGLQtContext();
 
 	
 	protected:
 
 			// überschriebene Funktionen der Elternklassen
-			void 			initializeGL();
-			void 			paintGL();
-			void 			resizeGL(int width, int height);
+			void                    initializeGL();
+			void                    paintGL();
+			void                    resizeGL(int width, int height);
 
-			void 			mousePressEvent(QMouseEvent *);
-			//void 			mouseReleaseEvent(QMouseEvent *);
-			void 			mouseMoveEvent(QMouseEvent *);
-			void			keyPressEvent(QKeyEvent *);
+			void                    mousePressEvent(QMouseEvent *);
+			//void                  mouseReleaseEvent(QMouseEvent *);
+			void                    mouseMoveEvent(QMouseEvent *);
+			void                    keyPressEvent(QKeyEvent *);
 
 
 	private:
@@ -74,43 +74,46 @@ class OpenGLQtContext : public QGLWidget
 			void initMatrices();
 			void initShader();
 
-			glm::mat4	mModelMatrix;
-			glm::mat4	mViewMatrix;
-			glm::mat4	mModelViewMatrix;
-			glm::mat4	mMVInverseMatrix;
-			glm::mat4	mNormalMatrix;
-			glm::mat4	mProjectionMatrix;
-			glm::mat4	mMVPMatrix;
-			glm::mat4	mMVPInverseMatrix;
+			std::string     mVolumeFileName;
+			
+			glm::mat4       mModelMatrix;
+			glm::mat4       mViewMatrix;
+			glm::mat4       mModelViewMatrix;
+			glm::mat4       mMVInverseMatrix;
+			glm::mat4       mNormalMatrix;
+			glm::mat4       mProjectionMatrix;
+			glm::mat4       mMVPMatrix;
+			glm::mat4       mMVPInverseMatrix;
 
 
-			GLuint		mShaderID;
+			GLuint          mShaderID[3];
+			GLuint		mCurrentShader;
 
-			GLuint		mVao;
-			GLuint		mVBuf;
-			GLuint		mLBuf;
-			GLuint		mIBuf;
+			GLuint          mVao;
+			GLuint          mVBuf;
+			GLuint          mLBuf;
+			GLuint          mIBuf;
 
 			QTimer *        mTimer;
-			BrickTree*	mTree;
+			BrickTree*      mTree;
 
-			int 		mFrameCounter;
+			int             mFrameCounter;
 			
-			glm::vec3	mLastPos;// = glm::vec3(1.0f);
-			GLuint		mWidth;
-			GLuint		mHeight;
+			glm::vec3       mLastPos;// = glm::vec3(1.0f);
+			GLuint          mWidth;
+			GLuint          mHeight;
 			
-			Dimension	mDim;
+			Dimension       mDim;
 
 
 	public slots:
-			void 		fps();
+			void            fps();
 
 
 	private:
 
 	signals:
-			void		setTitle(QString const&);
+			void            setTitle(QString const&);
 
 
 };

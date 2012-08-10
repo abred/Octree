@@ -34,6 +34,7 @@ class TextureAtlas
 		
 		GLuint mTextureAtlas;
 		GLuint mIndexTexture;
+		GLuint mTransFuncTexture;
 
 		GLuint mTexAtlasBuffer;
 		

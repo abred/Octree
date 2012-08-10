@@ -11,7 +11,8 @@ TextureAtlas::TextureAtlas( unsigned int volumeWidth ,unsigned int volumeHeight,
 	mCutMap = std::unordered_map<int,int> (CUTSIZE);
 	glGenTextures(1 , &mTextureAtlas);
 	glGenTextures(1 , &mIndexTexture);
-
+	glGenTextures(1 , &mTransFuncTexture);
+	
 	glGenBuffers(1, &mTexAtlasBuffer );
 	
 	glBindBuffer(GL_TEXTURE_BUFFER , mTexAtlasBuffer);
@@ -24,8 +25,22 @@ TextureAtlas::TextureAtlas( unsigned int volumeWidth ,unsigned int volumeHeight,
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
 	
 //	glPixelStorei(GL_UNPACK_ALIGNMENT , 1);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RG16UI , volumeWidth / BRICKSIZE , volumeHeight / BRICKSIZE ,volumeDepth / BRICKSIZE ,0 , GL_RG_INTEGER , GL_UNSIGNED_INT , nullptr );
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16UI , volumeWidth / BRICKSIZE , volumeHeight / BRICKSIZE ,volumeDepth / BRICKSIZE ,0 , GL_RGB_INTEGER , GL_UNSIGNED_INT , nullptr );
 	
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_1D, mTransFuncTexture);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
+	
+	float tmpTrans[VALUERANGE][4] = {{1.0f, 1.0f, 1.0f, 1.0f}};
+	for (unsigned int i = 0; i < VALUERANGE; ++i)
+	{
+		tmpTrans[i][0] = float(i)/float(VALUERANGE);
+		tmpTrans[i][1] = float(i)/float(VALUERANGE);
+		tmpTrans[i][2] = float(i)/float(VALUERANGE);
+		tmpTrans[i][3] = 1.0f;
+	}
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, VALUERANGE, 0, GL_RGBA , GL_FLOAT , &tmpTrans[0][0] );
 	
 }
 
@@ -63,13 +78,11 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 		levelOffsetY = (*mTree)[*i]->getCenter().y - 0.5*levelHeight;
 		levelOffsetZ = (*mTree)[*i]->getCenter().z - 0.5*levelDepth;
 
-		std::vector<glm::uvec2> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec2(counter++, (GLuint)pow(2.0f, float((*mTree)[*i]->getLevel()))) );
+		std::vector<glm::uvec3> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec3(counter++, (GLuint)pow(2.0f, float((*mTree)[*i]->getLevel())), (unsigned int)(*mTree)[*i]->isEmpty()) );
 //		std::cout << tmp[0].x << " " << tmp[0].y << " " << std::endl;
-		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RG_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
+		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RGB_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
 	}
-	
-	std::cout << GL_R16UI << " " << GL_R8UI << " dddd " << TEXTURETYPE << std::endl;
-	
+		
 
 }
 
@@ -97,10 +110,10 @@ void TextureAtlas::updateTextures(std::list<int> const &addBricks , std::list<in
 		levelOffsetY = (*mTree)[*i]->getCenter().y - 0.5*levelHeight;
 		levelOffsetZ = (*mTree)[*i]->getCenter().z - 0.5*levelDepth;
 		
-		std::vector<glm::uvec2> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec2(slot, (GLuint)pow(2.0f, float((*mTree)[*i]->getLevel())) ) );
+		std::vector<glm::uvec3> tmp (levelWidth*levelHeight*levelDepth/BRICKSIZE/BRICKSIZE/BRICKSIZE, glm::uvec3(slot, (GLuint)pow(2.0f, float((*mTree)[*i]->getLevel())), (unsigned int)(*mTree)[*i]->isEmpty() ) );
 
 		glActiveTexture(GL_TEXTURE1);
-		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RG_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
+		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RGB_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
 		
 		
 		glActiveTexture(GL_TEXTURE0);

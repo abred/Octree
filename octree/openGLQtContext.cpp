@@ -78,11 +78,11 @@ void GLAPIENTRY debugOutput (GLenum source,
 //
 //Konstruktoren, Destruktoren
 //
-OpenGLQtContext::OpenGLQtContext(QGLFormat* context, QWidget *parent) :
-		QGLWidget 		(*context, parent)
+OpenGLQtContext::OpenGLQtContext(std::string const& filename, QGLFormat* context, QWidget *parent) : 
+		mVolumeFileName(filename),
+		QGLWidget (*context, parent)
 		
 {
-	// Qt kann in mehrere Contexte zeichnen, dies setzt unseren neu erstellten als aktuellen 
 	makeCurrent();
 
 	setFocusPolicy ( Qt::ClickFocus);
@@ -90,8 +90,8 @@ OpenGLQtContext::OpenGLQtContext(QGLFormat* context, QWidget *parent) :
 
 	mFrameCounter = 0;
 	mTimer = new QTimer(this);
-	 	connect(mTimer, SIGNAL(timeout()), this, SLOT(fps()));
-	 	mTimer->start(1000);
+	connect(mTimer, SIGNAL(timeout()), this, SLOT(fps()));
+	mTimer->start(1000);
 	
 }
 //
@@ -120,7 +120,7 @@ void OpenGLQtContext::initializeGL()
 		exit(EXIT_FAILURE);
 	}			
 
-
+#ifdef DEBUG
 	if (glewIsExtensionSupported("GL_ARB_debug_output"))
 	{
 	std::cout << "QGL: ARB debug output verfuegbar" << std::endl;
@@ -132,13 +132,13 @@ void OpenGLQtContext::initializeGL()
 	{
 		std::cout << "QGL: Kein debug output verfuegbar oder deaktiviert" << std::endl;
 	}
-
+#endif
 
 	std::cout << "QGL: OpenGL Version: " << glGetString(GL_VERSION) << std::endl << std::endl;
 
 
 //	glClearDepth(1.0f);
-	glClearColor( 0.0f, 1.0f, 0.0f, 0.0f );
+	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 
 //	glDisable(GL_PROGRAM_POINT_SIZE);
 //	glPointSize(5.0f);
@@ -166,8 +166,9 @@ void OpenGLQtContext::initializeGL()
 //
 void OpenGLQtContext::initScene()
 {
-	VolumeLoader* l = new VolumeLoader("res/coronal_w1024_h1024_d1080_c1_b16.raw");
+//	VolumeLoader* l = new VolumeLoader("res/coronal_w1024_h1024_d1080_c1_b16.raw");
 //	VolumeLoader* l = new VolumeLoader("res/foot_w256_h256_d256_c1_b8.raw");
+	VolumeLoader* l = new VolumeLoader(mVolumeFileName);
 	l->loadData();
 	mDim = l->getDimension();
 	
@@ -275,19 +276,17 @@ void OpenGLQtContext::initMatrices()
 	mViewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	mModelViewMatrix = mViewMatrix * mModelMatrix ;
 	mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
-	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 1000.f);
+	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 100.f);
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
-	mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 
-	glUseProgram(mShaderID);
-	GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
-	glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
-	GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
-	glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
-	GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVInverse");
-	glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
-	GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
-	glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
+	for (unsigned int i = 0; i < 3; ++i)
+	{
+		glUseProgram(mShaderID[i]);
+		GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID[i], "MVP");
+		glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
+		GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID[i], "MVInverse");
+		glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
+	}
 
 }
 //
@@ -298,16 +297,15 @@ void OpenGLQtContext::initMatrices()
 //
 void OpenGLQtContext::initShader()
 {
-	std::string const vsFile("shader/quad.vert");
-	//std::string const gsFile(".geom");
-	std::string const fsFile("shader/quad.frag");
-
-	mShaderID = glCreateProgram();
+	mCurrentShader = 0;
+	
+	mShaderID[0] = glCreateProgram();
+	{
+		std::string const vsFile("shader/raycast.vert");
+		std::string const fsFile("shader/maxInt.frag");
+	
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		const char* vsSource = readTextFile(vsFile);
-
-		//GLuint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
-		//const char* gsSource = readTextFile(gsFile);
 
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		const char* fsSource = readTextFile(fsFile);
@@ -316,49 +314,106 @@ void OpenGLQtContext::initShader()
 		glShaderSource(vertexShader, 1, &vsSource, nullptr);
 		glCompileShader(vertexShader);
 
-		//glShaderSource(geometryShader, 1, &gsSource, nullptr);
-		//glCompileShader(geometryShader);
+		glShaderSource(fragmentShader, 1, &fsSource, nullptr);
+		glCompileShader(fragmentShader);
+
+		glAttachShader(mShaderID[0], vertexShader);
+		glAttachShader(mShaderID[0], fragmentShader);
+
+		glLinkProgram(mShaderID[0]);
+
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+
+		glUseProgram(mShaderID[0]);
+	}
+	
+	mShaderID[1] = glCreateProgram();
+	{
+		std::string const vsFile("shader/raycast.vert");
+		std::string const fsFile("shader/average.frag");
+	
+		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		const char* vsSource = readTextFile(vsFile);
+
+		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		const char* fsSource = readTextFile(fsFile);
+
+
+		glShaderSource(vertexShader, 1, &vsSource, nullptr);
+		glCompileShader(vertexShader);
 
 		glShaderSource(fragmentShader, 1, &fsSource, nullptr);
 		glCompileShader(fragmentShader);
 
-		glAttachShader(mShaderID, vertexShader);
-		//glAttachShader(mShaderID, geometryShader);
-		glAttachShader(mShaderID, fragmentShader);
+		glAttachShader(mShaderID[1], vertexShader);
+		glAttachShader(mShaderID[1], fragmentShader);
 
-		glLinkProgram(mShaderID);
+		glLinkProgram(mShaderID[1]);
 
 		glDeleteShader(vertexShader);
-		//glDeleteShader(geometryShader);
 		glDeleteShader(fragmentShader);
 
-		glUseProgram(mShaderID);
+		glUseProgram(mShaderID[1]);
+	}	
 	
-	GLuint indTexLocation = glGetUniformLocation(mShaderID, "indexTexture");
-	glUniform1i(indTexLocation, 1);
-	GLuint texAtlLocation = glGetUniformLocation(mShaderID, "textureAtlas");
-	glUniform1i(texAtlLocation, 0);
+	mShaderID[2] = glCreateProgram();
+	{
+		std::string const vsFile("shader/raycast.vert");
+		std::string const fsFile("shader/ftb.frag");
 	
-	GLuint numsamLocation = glGetUniformLocation(mShaderID, "numSamples");
-	glUniform1i(numsamLocation , 1000);
+		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		const char* vsSource = readTextFile(vsFile);
+
+		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		const char* fsSource = readTextFile(fsFile);
+
+
+		glShaderSource(vertexShader, 1, &vsSource, nullptr);
+		glCompileShader(vertexShader);
+
+		glShaderSource(fragmentShader, 1, &fsSource, nullptr);
+		glCompileShader(fragmentShader);
+
+		glAttachShader(mShaderID[2], vertexShader);
+		glAttachShader(mShaderID[2], fragmentShader);
+
+		glLinkProgram(mShaderID[2]);
+
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+
+		glUseProgram(mShaderID[2]);
+	}
 	
-	GLuint stepSizeLocation = glGetUniformLocation(mShaderID, "stepSize");
-	glUniform1f(stepSizeLocation , 0.01f );
+	for (unsigned int i = 0; i < 3; i += 1)
+	{
+		glUseProgram(mShaderID[i]);
+		GLuint indTexLocation = glGetUniformLocation(mShaderID[i], "indexTexture");
+		glUniform1i(indTexLocation, 1);
+		GLuint texAtlLocation = glGetUniformLocation(mShaderID[i], "textureAtlas");
+		glUniform1i(texAtlLocation, 0);
+		GLuint transFooLocation = glGetUniformLocation(mShaderID[i], "transferFunction");
+		glUniform1i(transFooLocation, 2);
 	
-	GLuint brickSizeLoc = glGetUniformLocation(mShaderID, "BRICKSIZE");
-	glUniform1i(brickSizeLoc, BRICKSIZE);
+		GLuint stepSizeLocation = glGetUniformLocation(mShaderID[i], "stepSize");
+		glUniform1f(stepSizeLocation , 0.001f );
 	
-	GLuint valueRangeLoc = glGetUniformLocation(mShaderID, "VALUERANGE");
-	glUniform1f(valueRangeLoc, VALUERANGE);
+		GLuint brickSizeLoc = glGetUniformLocation(mShaderID[i], "BRICKSIZE");
+		glUniform1i(brickSizeLoc, BRICKSIZE);
 	
-	GLuint widthLoc = glGetUniformLocation(mShaderID, "width");
-	glUniform1f(widthLoc, mDim.width);
+		GLuint valueRangeLoc = glGetUniformLocation(mShaderID[i], "inverseVALUERANGE");
+		glUniform1f(valueRangeLoc, 1.0f/float(VALUERANGE));
 	
-	GLuint heightLoc = glGetUniformLocation(mShaderID, "height");
-	glUniform1f(heightLoc, mDim.height);
+		GLuint widthLoc = glGetUniformLocation(mShaderID[i], "width");
+		glUniform1f(widthLoc, mDim.width);
 	
-	GLuint depthLoc = glGetUniformLocation(mShaderID, "depth");
-	glUniform1f(depthLoc, mDim.depth);
+		GLuint heightLoc = glGetUniformLocation(mShaderID[i], "height");
+		glUniform1f(heightLoc, mDim.height);
+	
+		GLuint depthLoc = glGetUniformLocation(mShaderID[i], "depth");
+		glUniform1f(depthLoc, mDim.depth);
+	}
 	
 	
 }
@@ -377,38 +432,17 @@ void OpenGLQtContext::paintGL()
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 
 	glm::vec4 cam = glm::inverse(mModelViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	glUseProgram(mShaderID);
-	GLuint camLocation = glGetUniformLocation(mShaderID, "camPosition");
+	glUseProgram(mShaderID[mCurrentShader]);
+	GLuint camLocation = glGetUniformLocation(mShaderID[mCurrentShader], "camPosition");
 	glUniform4fv(camLocation, 1, &cam[0]);
+
 	
-	++mFrameCounter;
-	glm::vec4 cam2 = glm::inverse(mViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	mTree->updateCut(glm::vec3(cam.x, cam.y, cam.z));
-//	std::cout << "cam  " << cam.x << " " << cam.y << " " << cam.z << std::endl;
-//	std::cout << "cam2 " << cam2.x << " " << cam2.y << " " << cam2.z << std::endl;
-	
-	
-//	glUseProgram(mShaderID);
-//	GLuint mvpMatrixLocation = glGetUniformLocation(mShaderID, "MVP");
-//	glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, &mMVPMatrix[0][0]);
 	glBindVertexArray(mVao);
-//		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, nullptr);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-	
-//	glm::vec3 cam(0.0f, 0.0f, 0.0f);
-
-//	srand(time(NULL));
-//	float ranX = (float)(rand() %10000) - 5000;
-//	srand(time(NULL));
-//	float ranY = (float)(rand() %10000- 5000) + ranX;
-//	srand(time(NULL));
-//	float ranZ = (float)(rand() %10000- 5000) - ranY;
-//	cam = glm::vec3(cam.x +ranX , cam.y + ranY , cam.z + ranZ );
-	
-
-	
 
 
+	++mFrameCounter;
+	mTree->updateCut(glm::vec3(cam.x, cam.y, cam.z));
 	update();
 }
 //
@@ -421,31 +455,19 @@ void OpenGLQtContext::paintGL()
 //
 void OpenGLQtContext::resizeGL(int width, int height)
 {
-//	std::cout << "pblub";
 	mWidth = width;
 	mHeight = height;
 	glViewport(0, 0, width, height);
 	resize(width, height);
-	mProjectionMatrix = glm::perspective(60.0f, float(width) / float(height), 0.1f, 1000.f);
+	mProjectionMatrix = glm::perspective(60.0f, float(width) / float(height), 0.1f, 100.f);
 	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
-	mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 
-	glUseProgram(mShaderID);
-	GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
-	glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
-	GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
-	glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
-	
-	GLuint wsLocation = glGetUniformLocation(mShaderID, "windowSize");
-	glUniform2f(wsLocation, float(width), float(height));
-	
-	
-	float focalLength = 1.0f/ std::tan(1.047f/2.0f);
-	
-	GLuint flLocation = glGetUniformLocation(mShaderID, "focalLength");
-	glUniform1f(flLocation, focalLength);
-	
-	
+	for (unsigned int i = 0; i < 3; ++i)
+	{
+		glUseProgram(mShaderID[i]);
+		GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID[i], "MVP");
+		glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
+	}
 }
 //
 
@@ -494,6 +516,10 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 		case Qt::Key_PageDown:
 					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, -0.1f)) * mViewMatrix;
 					break;
+					
+		case Qt::Key_T:
+					mCurrentShader = (mCurrentShader+1) % 3;
+					break;
 		
 		default:		
 					std::cout << "QGL: Key nicht belegt" << std::endl;
@@ -501,19 +527,16 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 
 		mModelViewMatrix = mViewMatrix * mModelMatrix ;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
-		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 		mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
 		
-		glUseProgram(mShaderID);
-		GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
-		glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
-		GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
-		glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
-		GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVInverse");
-		glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
-		GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
-		glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
-
+		for (unsigned int i = 0; i < 3; ++i)
+		{
+			glUseProgram(mShaderID[i]);
+			GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID[i], "MVP");
+			glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
+			GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID[i], "MVInverse");
+			glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
+		}
 		update();
 }
 //
@@ -526,7 +549,7 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 //
 void OpenGLQtContext::mousePressEvent(QMouseEvent *event)
 {
-	//lastPos_ = event->pos();
+
 	glm::vec3 v(0.0f);
 	float d;
 	v.x = (2.0f * event->x() - mWidth) / float(mWidth);
@@ -549,12 +572,6 @@ void OpenGLQtContext::mousePressEvent(QMouseEvent *event)
 //
 void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 {
-//	int dx = event->x() - mLastPos.x();
-//	int dy = event->y() - mLastPos.y();
-
-
-//	mLastPos = event->pos();
-
 
 	if (event->buttons() & Qt::LeftButton)
 	{
@@ -582,57 +599,18 @@ void OpenGLQtContext::mouseMoveEvent(QMouseEvent *event)
 		mLastPos = curPos;
 	}
 
-//	if (event->buttons() & Qt::LeftButton)
-//	{
-//		if (dx < 0)
-//		{
-//			glm::vec4 tmp = glm::inverse(mModelMatrix) * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
-//			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(tmp.x, tmp.y, tmp.z));
-//		}
-//		else
-//		{
-//			glm::vec4 tmp = glm::inverse(mModelMatrix) * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
-//			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(tmp.x, tmp.y, tmp.z));
-//		}
-//		if (dy < 0)
-//		{
-//			glm::vec4 tmp = glm::inverse(mModelMatrix) * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-//			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(tmp.x, tmp.y, tmp.z));
-//		}
-//		else
-//		{
-//			glm::vec4 tmp = glm::inverse(mModelMatrix) * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-//			mModelMatrix = mModelMatrix * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(tmp.x, tmp.y, tmp.z));
-//		}
-//	}
-//	else if (event->buttons() & Qt::RightButton)
-//	{
-		// if (dx < 0)
-		//
-		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
-		// else
-		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
-		//
-		// if (dy < 0)
-		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(-M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
-		// else
-		// viewMatrix_ = viewMatrix_ * glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
-//	}
-
 		mModelViewMatrix = mViewMatrix * mModelMatrix ;
 		mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
-		mMVPInverseMatrix = glm::inverse(mMVPMatrix);
 		mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
 
-		glUseProgram(mShaderID);
-		GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID, "MVP");
-		glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
-		GLuint mvpIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVPInverse");
-		glUniformMatrix4fv(mvpIMatrixLocation_, 1, GL_FALSE, &mMVPInverseMatrix[0][0]);
-		GLuint mvMatrixLocation_ = glGetUniformLocation(mShaderID, "MV");
-		glUniformMatrix4fv(mvMatrixLocation_, 1, GL_FALSE, &mModelViewMatrix[0][0]);
-		GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID, "MVInverse");
-		glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
+		for (unsigned int i = 0; i < 3; ++i)
+		{
+			glUseProgram(mShaderID[i]);
+			GLuint mvpMatrixLocation_ = glGetUniformLocation(mShaderID[i], "MVP");
+			glUniformMatrix4fv(mvpMatrixLocation_, 1, GL_FALSE, &mMVPMatrix[0][0]);
+			GLuint mvIMatrixLocation_ = glGetUniformLocation(mShaderID[i], "MVInverse");
+			glUniformMatrix4fv(mvIMatrixLocation_, 1, GL_FALSE, &mMVInverseMatrix[0][0]);
+		}
 		
 		
 		update();

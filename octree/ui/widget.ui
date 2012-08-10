@@ -25,6 +25,9 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QSlider" name="verticalSlider">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -32,6 +35,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_2">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -39,6 +45,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_3">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -46,6 +55,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_4">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -53,6 +65,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_5">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -60,6 +75,39 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_6">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_7">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_8">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+          <item>
+          <widget class="QSlider" name="verticalSlider_33">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -75,21 +123,10 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QSlider" name="verticalSlider_7">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSlider" name="verticalSlider_8">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QSlider" name="verticalSlider_9">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -97,6 +134,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_10">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -104,6 +144,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_11">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -111,6 +154,59 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_12">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_13">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_14">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_15">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_16">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+          <item>
+          <widget class="QSlider" name="verticalSlider_34">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -126,7 +222,30 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
+          <widget class="QSlider" name="verticalSlider_17">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_18">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QSlider" name="verticalSlider_19">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -134,6 +253,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_20">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -141,6 +263,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_21">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -148,6 +273,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_22">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -155,6 +283,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_23">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -162,6 +293,19 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_24">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+          <item>
+          <widget class="QSlider" name="verticalSlider_35">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -178,6 +322,9 @@
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
           <widget class="QSlider" name="verticalSlider_25">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -185,6 +332,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_26">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -192,6 +342,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_27">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -199,6 +352,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_28">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -206,6 +362,9 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_29">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -213,6 +372,39 @@
          </item>
          <item>
           <widget class="QSlider" name="verticalSlider_30">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_31">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="verticalSlider_32">
+           <property name="value">
+            <number>99</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+          <item>
+          <widget class="QSlider" name="verticalSlider_36">
+           <property name="value">
+            <number>99</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>

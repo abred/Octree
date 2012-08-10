@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstring>
 #include <fstream>
+#include <algorithm>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,6 +53,7 @@ class VolumeLoader
 		unsigned int bitsPerVoxel;
 		unsigned int dimension;
 		unsigned int depth;
+		unsigned int side;
 		
 		Dimension mDim;
 		
