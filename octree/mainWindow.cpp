@@ -547,7 +547,10 @@ void MainWindow::changeTransfer(int value, int slider, int comp)
 	}
 	
 	glActiveTexture(GL_TEXTURE2);	
-	glTexSubImage1D(GL_TEXTURE_1D, 0, 0, VALUERANGE , GL_RGBA, GL_FLOAT , &trans[0][0]);
+//	glTexSubImage1D(GL_TEXTURE_1D, 0, 0, VALUERANGE , GL_RGBA, GL_FLOAT , &trans[0][0]);
+	glBindBuffer(GL_TEXTURE_BUFFER, qgl->getTree()->getTexAtl()->getTransFuncBuffer());
+	glBufferSubData(GL_TEXTURE_BUFFER, 0, VALUERANGE * sizeof(GLfloat) * 4, &trans[0][0]);
+//	glTexBuffer(GL_TEXTURE_BUFFER , GL_RGBA32F , qgl->getTree()->getTexAtl()->getTransFuncBuffer());
 }
 
 

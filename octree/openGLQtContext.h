@@ -54,6 +54,9 @@ class OpenGLQtContext : public QGLWidget
 
 						OpenGLQtContext(std::string const& filename, QGLFormat *context, QWidget *parent = 0);
 						~OpenGLQtContext();
+						
+						
+			BrickTree*       getTree();
 
 	
 	protected:

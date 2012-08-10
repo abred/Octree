@@ -14,10 +14,16 @@ TextureAtlas::TextureAtlas( unsigned int volumeWidth ,unsigned int volumeHeight,
 	glGenTextures(1 , &mTransFuncTexture);
 	
 	glGenBuffers(1, &mTexAtlasBuffer );
+	glGenBuffers(1, &mTransFuncBuffer);
 	
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_BUFFER, mTextureAtlas);
 	glBindBuffer(GL_TEXTURE_BUFFER , mTexAtlasBuffer);
 	glBufferData(GL_TEXTURE_BUFFER , CUTSIZE * BRICKSIZE * BRICKSIZE * BRICKSIZE * sizeof(valueType) , nullptr , GL_DYNAMIC_COPY);
-
+	
+	glTexBuffer(GL_TEXTURE_BUFFER , TEXTURETYPE , mTexAtlasBuffer);
+	
 	
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_3D , mIndexTexture);
@@ -27,20 +33,17 @@ TextureAtlas::TextureAtlas( unsigned int volumeWidth ,unsigned int volumeHeight,
 //	glPixelStorei(GL_UNPACK_ALIGNMENT , 1);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16UI , volumeWidth / BRICKSIZE , volumeHeight / BRICKSIZE ,volumeDepth / BRICKSIZE ,0 , GL_RGB_INTEGER , GL_UNSIGNED_INT , nullptr );
 	
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_1D, mTransFuncTexture);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
+//	glActiveTexture(GL_TEXTURE2);
+//	glBindTexture(GL_TEXTURE_1D, mTransFuncTexture);
+//	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
 	
-	float tmpTrans[VALUERANGE][4] = {{1.0f, 1.0f, 1.0f, 1.0f}};
-	for (unsigned int i = 0; i < VALUERANGE; ++i)
-	{
-		tmpTrans[i][0] = float(i)/float(VALUERANGE);
-		tmpTrans[i][1] = float(i)/float(VALUERANGE);
-		tmpTrans[i][2] = float(i)/float(VALUERANGE);
-		tmpTrans[i][3] = 1.0f;
-	}
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, VALUERANGE, 0, GL_RGBA , GL_FLOAT , &tmpTrans[0][0] );
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_BUFFER, mTransFuncTexture);
+	glBindBuffer(GL_TEXTURE_BUFFER, mTransFuncBuffer);
+//	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, VALUERANGE, 0, GL_RGBA , GL_FLOAT , &tmpTrans[0][0] );
+	glBufferData(GL_TEXTURE_BUFFER, VALUERANGE * sizeof(GLfloat) * 4, nullptr, GL_DYNAMIC_COPY);
+	glTexBuffer(GL_TEXTURE_BUFFER , GL_RGBA32F , mTransFuncBuffer);
 	
 }
 
@@ -49,7 +52,7 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 {
 	glActiveTexture(GL_TEXTURE0);
 
-	glBindTexture(GL_TEXTURE_BUFFER , mTextureAtlas);
+//	glBindTexture(GL_TEXTURE_BUFFER , mTextureAtlas);
 	glBindBuffer(GL_TEXTURE_BUFFER , mTexAtlasBuffer);
 	
 	
@@ -62,7 +65,7 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 		++counter;
 	}
 	
-	glTexBuffer(GL_TEXTURE_BUFFER , TEXTURETYPE , mTexAtlasBuffer);
+//	glTexBuffer(GL_TEXTURE_BUFFER , TEXTURETYPE , mTexAtlasBuffer);
 	
 	glActiveTexture(GL_TEXTURE1);
 	float levelWidth, levelHeight, levelDepth;
@@ -82,8 +85,21 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 //		std::cout << tmp[0].x << " " << tmp[0].y << " " << std::endl;
 		glTexSubImage3D(GL_TEXTURE_3D, 0, (GLuint)levelOffsetX/BRICKSIZE, (GLuint)levelOffsetY/BRICKSIZE, (GLuint)levelOffsetZ/BRICKSIZE, (GLuint)levelWidth/BRICKSIZE, (GLuint) levelHeight/BRICKSIZE, (GLuint)levelDepth/BRICKSIZE, GL_RGB_INTEGER, GL_UNSIGNED_INT, &tmp[0]);
 	}
-		
-
+	
+	glActiveTexture(GL_TEXTURE2);
+//	glBindTexture(GL_TEXTURE_BUFFER, mTransFuncTexture);
+	glBindBuffer(GL_TEXTURE_BUFFER, mTransFuncBuffer);
+	float tmpTrans[VALUERANGE][4] = {{1.0f, 1.0f, 1.0f, 1.0f}};
+	for (unsigned int i = 0; i < VALUERANGE; ++i)
+	{
+		tmpTrans[i][0] = float(i)/float(VALUERANGE);
+		tmpTrans[i][1] = float(i)/float(VALUERANGE);
+		tmpTrans[i][2] = float(i)/float(VALUERANGE);
+		tmpTrans[i][3] = 1.0f;
+	}
+//	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, VALUERANGE, 0, GL_RGBA , GL_FLOAT , &tmpTrans[0][0] );
+	glBufferSubData(GL_TEXTURE_BUFFER, 0, VALUERANGE * sizeof(GLfloat) * 4, &tmpTrans[0][0]);
+//	glTexBuffer(GL_TEXTURE_BUFFER , GL_RGBA32F , mTransFuncBuffer);
 }
 
 void TextureAtlas::updateTextures(std::list<int> const &addBricks , std::list<int> const &removeBricks)
@@ -117,11 +133,10 @@ void TextureAtlas::updateTextures(std::list<int> const &addBricks , std::list<in
 		
 		
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_BUFFER , mTextureAtlas);
+//		glBindTexture(GL_TEXTURE_BUFFER , mTextureAtlas);
 		glBindBuffer(GL_TEXTURE_BUFFER , mTexAtlasBuffer);
-
 		glBufferSubData(GL_TEXTURE_BUFFER , slot * BRICKSIZE * BRICKSIZE * BRICKSIZE * sizeof(valueType), BRICKSIZE * BRICKSIZE * BRICKSIZE * sizeof(valueType) , (*mTree)[*i]->getData());
-		glTexBuffer(GL_TEXTURE_BUFFER , TEXTURETYPE , mTexAtlasBuffer);
+//		glTexBuffer(GL_TEXTURE_BUFFER , TEXTURETYPE , mTexAtlasBuffer);
 	}
 		
 
@@ -129,6 +144,10 @@ void TextureAtlas::updateTextures(std::list<int> const &addBricks , std::list<in
 
 
 
+GLuint TextureAtlas::getTransFuncBuffer()
+{
+	return mTransFuncBuffer;
+}
 
 
 

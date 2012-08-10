@@ -647,3 +647,8 @@ void OpenGLQtContext::fps()
 //}
 //
 
+BrickTree* OpenGLQtContext::getTree()
+{
+	return mTree;
+}
+

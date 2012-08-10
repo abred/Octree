@@ -54,6 +54,7 @@ class BrickTree
 
 		std::vector<Brick*> const& 	getTree() const;
 		std::list<int> const& 		getCut() const;
+		TextureAtlas* 			getTexAtl();
 		
 
 	private:
@@ -69,6 +70,7 @@ class BrickTree
 		int 	getParent(int index);
 		int 	getLevel(int index);
 		float 	getError(int, glm::vec3 cam);
+		
 		
 		float	getTrilinearInterpolation(glm::dvec3 point, valueType*);
 

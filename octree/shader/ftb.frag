@@ -6,7 +6,7 @@ out vec4 FragColor;
 
 uniform usampler3D indexTexture;
 uniform usamplerBuffer textureAtlas;
-uniform sampler1D transferFunction;
+uniform samplerBuffer transferFunction;
 
 uniform mat4 MVInverse;
 uniform vec4 camPosition;
@@ -65,7 +65,7 @@ void main()
 
 			float value = trilinearSample(pos2);
 		
-			vec4 src = texture(transferFunction, value * inverseVALUERANGE + 0.5 * inverseVALUERANGE);
+			vec4 src = texelFetch(transferFunction, int(value));
 			
 //			transparency = transparency * prevA;
 //			dst.r = transparency * src.r * src.a + dst.r;

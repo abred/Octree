@@ -25,6 +25,8 @@ class TextureAtlas
 		void initTextures(std::list<int> const&, Dimension);
 		void updateTextures(std::list<int> const & , std::list<int> const &);
 		
+		GLuint	getTransFuncBuffer();
+		
 
 	private:
 		
@@ -37,6 +39,7 @@ class TextureAtlas
 		GLuint mTransFuncTexture;
 
 		GLuint mTexAtlasBuffer;
+		GLuint mTransFuncBuffer;
 		
 		Dimension mDim;
 		

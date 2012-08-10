@@ -362,6 +362,11 @@ void BrickTree::collapse(int index)
 //-----------------------------------------------
 
 
+TextureAtlas* BrickTree::getTexAtl()
+{
+	return mTexAtl;
+}
+
 
 int BrickTree::getChild(int index, int child)
 {
