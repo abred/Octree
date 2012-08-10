@@ -519,6 +519,18 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 					
 		case Qt::Key_T:
 					mCurrentShader = (mCurrentShader+1) % 3;
+					if (mCurrentShader == 0)
+					{
+						std::cout << "Maximum Intensity\n";
+					}
+					else if (mCurrentShader == 1)
+					{
+						std::cout << "Average\n";
+					}
+					else // if (mCurrentShader ==2)
+					{
+						std::cout << "Front-to-Back Compositing\n";
+					}
 					break;
 		
 		default:		

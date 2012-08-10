@@ -6,7 +6,7 @@
 #define CUTSIZE 1024
 #define MAXREPLACEMENTS 128
 
-#define BIT 8
+#define BIT 12
 
 #if BIT == 8
 typedef unsigned char valueType;

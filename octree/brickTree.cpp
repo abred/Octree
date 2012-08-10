@@ -44,7 +44,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 
 		while(!mSplittableNodes.empty() && mCut.size() <= CUTSIZE-7 && r < MAXREPLACEMENTS)
 		{
-			std::cout<< "SPLIT!"<<std::endl;
+//			std::cout<< "SPLIT!"<<std::endl;
 			split(mSplittableNodes.front());			
 //			debugPrint(cam);
 			r += 8;
@@ -52,7 +52,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 
 		if(!mCollapsibleNodes.empty() && !mSplittableNodes.empty() && 	(getError(mSplittableNodes.front(), cam) < getError(mCollapsibleNodes.front(), cam)) && r < MAXREPLACEMENTS)
 		{
-			std::cout<< "COLLAPSE"<<std::endl;
+//			std::cout<< "COLLAPSE"<<std::endl;
 			collapse(mCollapsibleNodes.front());			
 //			debugPrint(cam);
 			r += 1;
