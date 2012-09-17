@@ -50,7 +50,7 @@ class BrickTree
 		~BrickTree ();
 		
 		
-		void 				updateCut(glm::vec3);
+		bool 				updateCut(glm::vec3);
 
 		std::vector<Brick*> const& 	getTree() const;
 		std::list<int> const& 		getCut() const;

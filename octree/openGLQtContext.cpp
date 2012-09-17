@@ -397,7 +397,7 @@ void OpenGLQtContext::initShader()
 		glUniform1i(transFooLocation, 2);
 	
 		GLuint stepSizeLocation = glGetUniformLocation(mShaderID[i], "stepSize");
-		glUniform1f(stepSizeLocation , 0.001f );
+		glUniform1f(stepSizeLocation , 0.005f );
 	
 		GLuint brickSizeLoc = glGetUniformLocation(mShaderID[i], "BRICKSIZE");
 		glUniform1i(brickSizeLoc, BRICKSIZE);
@@ -442,8 +442,10 @@ void OpenGLQtContext::paintGL()
 
 
 	++mFrameCounter;
-	mTree->updateCut(glm::vec3(cam.x, cam.y, cam.z));
-	update();
+	if (mTree->updateCut(glm::vec3(cam.x, cam.y, cam.z)))
+	{
+		update();
+	}
 }
 //
 
