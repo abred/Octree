@@ -111,6 +111,7 @@ class OpenGLQtContext : public QGLWidget
 
 	public slots:
 			void            fps();
+			void            slider();
 
 
 	private:

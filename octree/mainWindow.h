@@ -31,6 +31,9 @@ private:
 
 	void changeTransfer(int value, int slider, int comp);
 
+signals:
+	void updateColor();
+
 
 public slots:
 	void redSlider1(int value);

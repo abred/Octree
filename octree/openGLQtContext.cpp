@@ -273,7 +273,7 @@ void OpenGLQtContext::initScene()
 void OpenGLQtContext::initMatrices()
 {
 	mModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, -0.5f));
-	mViewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	mViewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f),glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	mModelViewMatrix = mViewMatrix * mModelMatrix ;
 	mMVInverseMatrix  = glm::inverse(mModelViewMatrix);
 	mProjectionMatrix = glm::perspective(60.0f, float(800) / float(600), 0.1f, 100.f);
@@ -397,7 +397,7 @@ void OpenGLQtContext::initShader()
 		glUniform1i(transFooLocation, 2);
 	
 		GLuint stepSizeLocation = glGetUniformLocation(mShaderID[i], "stepSize");
-		glUniform1f(stepSizeLocation , 0.005f );
+		glUniform1f(stepSizeLocation , 0.001f );
 	
 		GLuint brickSizeLoc = glGetUniformLocation(mShaderID[i], "BRICKSIZE");
 		glUniform1i(brickSizeLoc, BRICKSIZE);
@@ -496,27 +496,27 @@ void OpenGLQtContext::keyPressEvent(QKeyEvent* event)
 					qApp->quit();
 					break;
 		case Qt::Key_Left:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.1f, 0.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.01f, 0.0f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Right:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (-0.1f, 0.0f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (-0.01f, 0.0f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Up:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.1f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.01f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_Down:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, -0.1f, 0.0f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, -0.01f, 0.0f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_PageUp:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, 0.1f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, 0.01f)) * mViewMatrix;
 					break;
 
 		case Qt::Key_PageDown:
-					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, -0.1f)) * mViewMatrix;
+					mViewMatrix = glm::translate (glm::mat4(1.0f), glm::vec3 (0.0f, 0.0f, -0.01f)) * mViewMatrix;
 					break;
 					
 		case Qt::Key_T:
@@ -636,6 +636,11 @@ void OpenGLQtContext::fps()
 //	std::cout<< mFrameCounter << "fps"<< std::endl;
 	emit setTitle(QString::number(mFrameCounter));
 	mFrameCounter = 0;
+}
+
+void OpenGLQtContext::slider()
+{	
+	update();
 }
 
 //

@@ -110,6 +110,7 @@ MainWindow::MainWindow(std::string const& filename, QWidget *parent) :
 	connect(ui->verticalSlider_32, SIGNAL(valueChanged(int)), this, SLOT(alphaSlider8(int)));
 	connect(ui->verticalSlider_36, SIGNAL(valueChanged(int)), this, SLOT(alphaSlider9(int)));
 	
+	connect(this, SIGNAL(updateColor()), qgl, SLOT(slider()));
 
 	for (unsigned int i = 0; i < VALUERANGE; ++i)
 	{
@@ -551,6 +552,7 @@ void MainWindow::changeTransfer(int value, int slider, int comp)
 	glBindBuffer(GL_TEXTURE_BUFFER, qgl->getTree()->getTexAtl()->getTransFuncBuffer());
 	glBufferSubData(GL_TEXTURE_BUFFER, 0, VALUERANGE * sizeof(GLfloat) * 4, &trans[0][0]);
 //	glTexBuffer(GL_TEXTURE_BUFFER , GL_RGBA32F , qgl->getTree()->getTexAtl()->getTransFuncBuffer());
+	emit updateColor();
 }
 
 

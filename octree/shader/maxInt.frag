@@ -32,12 +32,16 @@ float trilinearSample(in vec4 pos);
 
 void main()
 {
-	vec4 rayOrigin = vPosition ;
+	vec4 rayOrigin = vPosition;
 	vec4 rayDir = normalize ((vPosition - camPosition));
 	
 	vec4 exitBB;
 	intersectBB(rayDir, rayOrigin, exitBB);
 	
+	if (distance(rayOrigin, exitBB) <= 0.001)
+	{
+		rayOrigin = camPosition;
+	}
 	vec4 pos = rayOrigin;
 	float dist = 0.0;
 	float maxDist = length(exitBB - rayOrigin);
