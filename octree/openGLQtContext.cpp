@@ -27,6 +27,7 @@ char* readTextFile(std::string fileName)
 
 //
 // from g-truc ogl-samples
+// debugOutput
 //
 void GLAPIENTRY debugOutput (GLenum source,
 							 GLenum type,
@@ -429,7 +430,7 @@ void OpenGLQtContext::paintGL()
 {	
 	// buffer leeren
    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
+	//mMVPMatrix = mProjectionMatrix * mModelViewMatrix;
 
 	glm::vec4 cam = glm::inverse(mModelViewMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	glUseProgram(mShaderID[mCurrentShader]);

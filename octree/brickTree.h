@@ -24,7 +24,9 @@
 
 
 
-
+//
+// struct to temporarily hold additional information about brick
+// 
 struct BrickData
 {
 	unsigned int width;
@@ -43,6 +45,12 @@ struct BrickData
 };
 
 
+//
+// tree class, stores complete tree in cpu-side memory
+// builds tree from raw data
+// computes cut and sends it to graka
+// updates cut if necessary
+//
 class BrickTree
 {
 	public:

@@ -1,1 +1,13 @@
 University Project
+
+(prototype)
+
+run:
+======
+
+# qmake-qt4
+# make
+# ./Octree res/<volume filename>
+
+
+(change define in utility.h depending on number of bits of your volume data (bXY in file name))

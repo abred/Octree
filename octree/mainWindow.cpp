@@ -20,11 +20,12 @@ MainWindow::MainWindow(std::string const& filename, QWidget *parent) :
 	
 	connect(qgl, SIGNAL(setTitle(QString const&)), this, SLOT(setWindowTitle(QString const&)));
 	
+	// set start values for transfer function
 	int max = ui->verticalSlider->maximum();
 	int min = ui->verticalSlider->minimum();
 	int step = max/8;
 	
-	ui->verticalSlider->setValue(min);
+		ui->verticalSlider->setValue(min);
 	ui->verticalSlider_9->setValue(min);
 	ui->verticalSlider_17->setValue(min);
 	ui->verticalSlider_25->setValue(max);
@@ -70,6 +71,7 @@ MainWindow::MainWindow(std::string const& filename, QWidget *parent) :
 	ui->verticalSlider_36->setValue(max);
 	
 	
+	// connect signal/slots for sliders
 	connect(ui->verticalSlider,   SIGNAL(valueChanged(int)), this, SLOT(redSlider1(int)));
 	connect(ui->verticalSlider_2, SIGNAL(valueChanged(int)), this, SLOT(redSlider2(int)));
 	connect(ui->verticalSlider_3, SIGNAL(valueChanged(int)), this, SLOT(redSlider3(int)));
@@ -129,6 +131,12 @@ MainWindow::~MainWindow()
 	delete qgl;
 }
 
+
+//
+// changeTransfer
+//
+// change values of transfer function
+//
 void MainWindow::changeTransfer(int value, int slider, int comp)
 {
 //	std::cout << "slider " << value << " " << slider << std::endl;

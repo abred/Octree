@@ -34,41 +34,6 @@ bool CamDistanceComperator::hasChild(int index) const
 
 
 //-----------------------------------------------
-//-------------CamDistanceComperator2------------
-//-----------------------------------------------
-
-CamDistanceComperator2::CamDistanceComperator2(glm::vec3 &cam, std::vector<Brick*>* t, Dimension dim) : mCam(cam), mTree(t), mDim(dim)
-		{}
-
-bool CamDistanceComperator2::operator() (int &lhs, int &rhs) const
-{
-	return(glm::length(mCam - (*mTree)[lhs]->getCenter()/glm::vec3(mDim.width, mDim.height, mDim.depth))) > (glm::length(mCam - (*mTree)[rhs]->getCenter()/glm::vec3(mDim.width, mDim.height,mDim.depth)));
-}
-
-
-
-
-
-
-
-//-----------------------------------------------
-//----------CamDistanceComperator3---------------
-//-----------------------------------------------
-
-CamDistanceComperator3::CamDistanceComperator3(glm::vec3 &cam, std::vector<Brick*>* t, Dimension dim) : mCam(cam), mTree(t), mDim(dim)
-		{}
-
-bool CamDistanceComperator3::operator() (int &lhs, int &rhs) const
-{
-	return(glm::length(mCam - (*mTree)[lhs]->getCenter()/glm::vec3(mDim.width, mDim.height, mDim.depth))) < (glm::length(mCam - (*mTree)[rhs]->getCenter()/glm::vec3(mDim.width, mDim.height, mDim.depth)));
-}
-
-
-
-
-
-
-//-----------------------------------------------
 //----------------SplitComperator----------------
 //-----------------------------------------------
 
@@ -118,7 +83,7 @@ bool SplitComperator::operator() (int &lhs, int &rhs) const
 	float errorLhs = diagLhs / (diagLhs + glm::length(mCam - (*mTree)[lhs]->getCenter()/glm::vec3(mDim.width, mDim.height, mDim.depth)));
 	float errorRhs = diagRhs / (diagRhs + glm::length(mCam - (*mTree)[rhs]->getCenter()/glm::vec3(mDim.width, mDim.height, mDim.depth)));
   			
-	return (errorLhs - errorSumLhsChild/8.0f) > (errorRhs - errorSumRhsChild/8.0f);
+	return (errorLhs - errorSumLhsChild/8.0f) < (errorRhs - errorSumRhsChild/8.0f);
 }
 
 
@@ -182,7 +147,7 @@ bool CollapseComperator::operator() (int &lhs, int &rhs) const
   	float errorLhs = diagLhs / (diagLhs + glm::length(mCam - (*mTree)[lhs]->getCenter()/glm::vec3(mDim.width, mDim.height, mDim.depth)));
   	float errorRhs = diagRhs / (diagRhs + glm::length(mCam - (*mTree)[rhs]->getCenter()/glm::vec3(mDim.width, mDim.height, mDim.depth)));
   	
-  	return (errorLhs - errorSumLhsChild/8.0f) < (errorRhs - errorSumRhsChild/8.0f);
+  	return (errorLhs - errorSumLhsChild/8.0f) > (errorRhs - errorSumRhsChild/8.0f);
 }
 
 int CollapseComperator::getParent(int index) const

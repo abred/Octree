@@ -1,10 +1,14 @@
 #include "textureAtlas.h"
 
 
+//
+// constructor, destructor
+//
 TextureAtlas::TextureAtlas()
 {}
 
 
+// creates texture/buffer, allocate memory on graphic card
 TextureAtlas::TextureAtlas( unsigned int volumeWidth ,unsigned int volumeHeight,unsigned int volumeDepth, std::vector<Brick*> const* tree ):
 	mTree(tree), mDim(Dimension(volumeWidth, volumeHeight,volumeDepth))
 {
@@ -47,7 +51,11 @@ TextureAtlas::TextureAtlas( unsigned int volumeWidth ,unsigned int volumeHeight,
 	
 }
 
-
+//
+// initTextures
+//
+// initialize textures with brick data
+//
 void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 {
 	glActiveTexture(GL_TEXTURE0);
@@ -102,6 +110,12 @@ void TextureAtlas::initTextures(std::list<int> const &firstCut , Dimension dim)
 //	glTexBuffer(GL_TEXTURE_BUFFER , GL_RGBA32F , mTransFuncBuffer);
 }
 
+
+//
+// updateTextures
+//
+// update texture data
+//
 void TextureAtlas::updateTextures(std::list<int> const &addBricks , std::list<int> const &removeBricks)
 {
 	for (auto i = removeBricks.begin(); i != removeBricks.end(); ++i)

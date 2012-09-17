@@ -1,11 +1,13 @@
 #include "volumeLoader.h"
 
 
-
+//
+// constructor, destructor
+//
 VolumeLoader::VolumeLoader(std::string fileName):
 	mFileName(fileName)
 {
-
+	// open file and parse filename
 	char* cstr = new char[ mFileName.size() + 1 ];
 	strcpy(cstr , mFileName.c_str());
 	
@@ -44,7 +46,7 @@ VolumeLoader::VolumeLoader(std::string fileName):
 		side = std::pow(2.0f, std::floor(ld));
 	}
 	std::cout<< "width: " << width << "\nheight: " << height << "\ndepth: " << depth << "\ncomponents: " << components << "\nbitsPerVoxel: " << bitsPerVoxel<<std::endl;
-	std::cout << "side: " << side << "log2(max): " << ld << std::endl;
+	std::cout << "side: " << side << "\nlog2(max): " << ld << std::endl;
 	
 //	mDim = Dimension(width, height , depth);
 	mDim = Dimension(side, side , side);
@@ -58,6 +60,13 @@ VolumeLoader::~VolumeLoader()
 
 }
 
+
+//
+// loadData
+//
+// load volume data
+// makes volume cubic, to next power of two (buffer with zeros)
+//
 void VolumeLoader::loadData()
 {
 //	FILE * pFile = fopen ( mFileName.c_str() , "rb" );
@@ -132,8 +141,6 @@ void VolumeLoader::loadData()
 	}
 		
 	std::cout<<"File loaded!"<<std::endl;
-//	std::cout << result << std::endl;
-
 }
 
 valueType* VolumeLoader::getData()

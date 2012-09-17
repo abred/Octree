@@ -1,7 +1,9 @@
 #include "brick.h"
 
 
-
+//
+// Constructor, Destructor
+//
 Brick::Brick( valueType * data,  glm::vec3 c , unsigned char level, bool e):
 	mData(data),
 	mCenter(c),
@@ -15,8 +17,12 @@ Brick::~Brick()
 {
 	delete mData;
 }
+//
 
 
+//
+// getter
+//
 valueType* Brick::getData()
 {
 	return mData;
@@ -37,3 +43,4 @@ bool Brick::isEmpty()
 {
 	return mEmpty;
 }
+//

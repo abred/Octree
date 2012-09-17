@@ -29,6 +29,9 @@ struct Dimension
 
 };
 
+//
+// class to load volume
+//
 class VolumeLoader
 {
 	public:

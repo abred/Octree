@@ -8,6 +8,9 @@
 #include "utility.h"
 
 
+//
+// basic brick structure
+// 
 class Brick
 {
 	public:

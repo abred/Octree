@@ -14,7 +14,12 @@
 #include "utility.h"
 
 
-
+//
+// creates textures
+//
+// indexTexture: maps model space coordinates to texture coordinates in 3D texture(textureAtlas)
+// textureAtlas: stores brick data
+//
 class TextureAtlas
 {
 	public:
