@@ -61,7 +61,7 @@ void BrickTree::updateCut(glm::vec3 cam)
 		}
 		else
 		{
-			std::cout << "r " << r << " " << mCollapsibleNodes.size() << " " << mSplittableNodes.size() << " " << getError(mSplittableNodes.front(), cam) << " " << getError(mCollapsibleNodes.front(), cam) << "zzzzzzzzzzzzzzzzzzzzz\n";
+			// std::cout << "r " << r << " " << mCollapsibleNodes.size() << " " << mSplittableNodes.size() << " " << getError(mSplittableNodes.front(), cam) << " " << getError(mCollapsibleNodes.front(), cam) << "zzzzzzzzzzzzzzzzzzzzz\n";
 			break;
 		}
 	}

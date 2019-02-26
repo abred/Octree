@@ -34,41 +34,44 @@ void GLAPIENTRY debugOutput (GLenum source,
 							 GLenum severity, 
 							 GLsizei length, 
 							 const GLchar* message,
-							 GLvoid* userParam)
+							 const GLvoid* userParam)
 {
 	char debSource[32], debType[32], debSev[32];
-	if(source == GL_DEBUG_SOURCE_API_ARB)
+	if(source == GL_DEBUG_SOURCE_API)
 		strcpy(debSource, "OpenGL");
-	else if(source == GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB)
+	else if(source == GL_DEBUG_SOURCE_WINDOW_SYSTEM)
 		strcpy(debSource, "Windows");
-	else if(source == GL_DEBUG_SOURCE_SHADER_COMPILER_ARB)
+	else if(source == GL_DEBUG_SOURCE_SHADER_COMPILER)
 		strcpy(debSource, "Shader Compiler");
-	else if(source == GL_DEBUG_SOURCE_THIRD_PARTY_ARB)
+	else if(source == GL_DEBUG_SOURCE_THIRD_PARTY)
 		strcpy(debSource, "Third Party");
-	else if(source == GL_DEBUG_SOURCE_APPLICATION_ARB)
+	else if(source == GL_DEBUG_SOURCE_APPLICATION)
 		strcpy(debSource, "Application");
-	else if(source == GL_DEBUG_SOURCE_OTHER_ARB)
+	else if(source == GL_DEBUG_SOURCE_OTHER)
 		strcpy(debSource, "Other");
 	 
-	if(type == GL_DEBUG_TYPE_ERROR_ARB)
+	if(type == GL_DEBUG_TYPE_ERROR)
 		strcpy(debType, "error");
-	else if(type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB)
+	else if(type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR)
 		strcpy(debType, "deprecated behavior");
-	else if(type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB)
+	else if(type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)
 		strcpy(debType, "undefined behavior");
-	else if(type == GL_DEBUG_TYPE_PORTABILITY_ARB)
+	else if(type == GL_DEBUG_TYPE_PORTABILITY)
 		strcpy(debType, "portability");
-	else if(type == GL_DEBUG_TYPE_PERFORMANCE_ARB)
+	else if(type == GL_DEBUG_TYPE_PERFORMANCE)
 		strcpy(debType, "performance");
-	else if(type == GL_DEBUG_TYPE_OTHER_ARB)
+	else if(type == GL_DEBUG_TYPE_OTHER)
 		strcpy(debType, "message");
 	 
-	if(severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	if(severity == GL_DEBUG_SEVERITY_HIGH)
 		strcpy(debSev, "high");
-	else if(severity == GL_DEBUG_SEVERITY_MEDIUM_ARB)
+	else if(severity == GL_DEBUG_SEVERITY_MEDIUM)
 		strcpy(debSev, "medium");
-	else if(severity == GL_DEBUG_SEVERITY_LOW_ARB)
+	else if(severity == GL_DEBUG_SEVERITY_LOW)
+	{
 		strcpy(debSev, "low");
+		return;
+		    }
 
 	std::cout << debSource << ": " << debType << " (" << debSev << ") " << id << ": " << message << std::endl;
 }
@@ -124,9 +127,9 @@ void OpenGLQtContext::initializeGL()
 	if (glewIsExtensionSupported("GL_ARB_debug_output"))
 	{
 	std::cout << "QGL: ARB debug output verfuegbar" << std::endl;
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-	glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	glDebugMessageCallbackARB(&debugOutput, nullptr);
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	glDebugMessageCallback(&debugOutput, nullptr);
 	}
 	else
 	{
@@ -138,7 +141,7 @@ void OpenGLQtContext::initializeGL()
 
 
 //	glClearDepth(1.0f);
-	glClearColor( 0.0f, 1.0f, 0.0f, 0.0f );
+	glClearColor( 1.0f, 1.0f, 0.0f, 0.0f );
 
 //	glDisable(GL_PROGRAM_POINT_SIZE);
 //	glPointSize(5.0f);
@@ -166,7 +169,7 @@ void OpenGLQtContext::initializeGL()
 //
 void OpenGLQtContext::initScene()
 {
-	VolumeLoader* l = new VolumeLoader("res/Engine_w256_h256_d256_c1_b8.raw");
+	VolumeLoader* l = new VolumeLoader("res/foot_w256_h256_d256_c1_b8.raw");
 	l->loadData();
 	
 	mTree = new BrickTree(l->getData() , l->getDimension().width , l->getDimension().height , l->getDimension().depth, glm::vec3(0.0f, 0.0f, 3.0f));
@@ -312,25 +315,86 @@ void OpenGLQtContext::initShader()
 
 		glShaderSource(vertexShader, 1, &vsSource, nullptr);
 		glCompileShader(vertexShader);
+		GLint isCompiled = 0;
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
+		if(isCompiled == GL_FALSE)
+		{
+			GLint maxLength = 0;
+			glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
+
+			// The maxLength includes the NULL character
+			std::vector<GLchar> errorLog(maxLength);
+			glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &errorLog[0]);
+
+			std::cout << "vertex" << std::endl;
+			for (int i = 0; i < maxLength; i++) {
+				std::cout << errorLog[i];
+			}std::cout << std::endl;
+			// Provide the infolog in whatever manor you deem best.
+			// Exit with failure.
+			glDeleteShader(vertexShader); // Don't leak the shader.
+			exit(0);
+		}
 
 		//glShaderSource(geometryShader, 1, &gsSource, nullptr);
 		//glCompileShader(geometryShader);
 
 		glShaderSource(fragmentShader, 1, &fsSource, nullptr);
 		glCompileShader(fragmentShader);
+		isCompiled = 0;
+		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
+		if(isCompiled == GL_FALSE)
+		{
+			GLint maxLength = 0;
+			glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength);
+
+			// The maxLength includes the NULL character
+			std::vector<GLchar> errorLog(maxLength);
+			glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &errorLog[0]);
+			std::cout << "fragment" << std::endl;
+			for (int i = 0; i < maxLength; i++) {
+				std::cout << errorLog[i];
+			}std::cout << std::endl;
+
+			// Provide the infolog in whatever manor you deem best.
+			// Exit with failure.
+			glDeleteShader(fragmentShader); // Don't leak the shader.
+			exit(0);
+		}
+
 
 		glAttachShader(mShaderID, vertexShader);
 		//glAttachShader(mShaderID, geometryShader);
 		glAttachShader(mShaderID, fragmentShader);
 
 		glLinkProgram(mShaderID);
+		GLint isLinked = 0;
+		glGetProgramiv(mShaderID, GL_LINK_STATUS, &isLinked);
+		if (isLinked == GL_FALSE)
+		{
+			GLint maxLength = 0;
+			glGetProgramiv(mShaderID, GL_INFO_LOG_LENGTH, &maxLength);
 
+			// The maxLength includes the NULL character
+			std::vector<GLchar> infoLog(maxLength);
+			glGetProgramInfoLog(mShaderID, maxLength, &maxLength, &infoLog[0]);
+			std::cout << "program" << std::endl;
+			for (int i = 0; i < maxLength; i++) {
+				std::cout << infoLog[i];
+			}std::cout << std::endl;
+
+			// The program is useless now. So delete it.
+			glDeleteProgram(mShaderID);
+
+			// Provide the infolog in whatever manner you deem best.
+			// Exit with failure.
+			exit(0);
+		}
 		glDeleteShader(vertexShader);
 		//glDeleteShader(geometryShader);
 		glDeleteShader(fragmentShader);
 
 		glUseProgram(mShaderID);
-	
 	GLuint indTexLocation = glGetUniformLocation(mShaderID, "indexTexture");
 	glUniform1i(indTexLocation, 1);
 	GLuint texAtlLocation = glGetUniformLocation(mShaderID, "textureAtlas");
